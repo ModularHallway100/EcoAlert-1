@@ -26,7 +26,7 @@ export function Dashboard() {
   useEffect(() => {
     if (aqi === null) return;
     
-    const prevAqi = historicalData.length > 0 ? historicalData[historicalData.length-1].aqi : 0;
+    const prevAqi = historicalData.length > 0 ? historicalData[historicalData.length - 1].aqi : 0;
 
     setHistoricalData((prevHistory) => {
       const newEntry = {
@@ -40,7 +40,7 @@ export function Dashboard() {
     if (aqi > AQI_HAZARDOUS_THRESHOLD && prevAqi <= AQI_HAZARDOUS_THRESHOLD) {
       triggerEmergency("High Pollution Detected");
     }
-  }, [aqi, triggerEmergency, historicalData.length]);
+  }, [aqi, triggerEmergency]);
 
 
   return (
