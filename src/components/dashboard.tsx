@@ -9,9 +9,10 @@ import { EmergencyDialog } from "./emergency-dialog";
 import { LineChart, AlertTriangle, Wind } from "lucide-react";
 import type { HistoricalData, Emergency } from "@/lib/types";
 import { AQI_HAZARDOUS_THRESHOLD, MAX_HISTORY_LENGTH } from "@/lib/constants";
+import { useAqi } from "@/hooks/use-aqi";
 
 export function Dashboard() {
-  const [aqi, setAqi] = useState(50);
+  const { aqi, error, loading } = useAqi();
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
   const [emergency, setEmergency] = useState<Emergency>({
     type: null,
@@ -23,30 +24,24 @@ export function Dashboard() {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setAqi((prevAqi) => {
-        const change = Math.floor(Math.random() * 21) - 10; // -10 to +10
-        const newAqi = Math.max(0, Math.min(500, prevAqi + change));
+    if (aqi === null) return;
+    
+    const prevAqi = historicalData.length > 0 ? historicalData[historicalData.length-1].aqi : 0;
 
-        setHistoricalData((prevHistory) => {
-          const newEntry = {
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-            aqi: newAqi,
-          };
-          const updatedHistory = [...prevHistory, newEntry];
-          return updatedHistory.slice(-MAX_HISTORY_LENGTH);
-        });
+    setHistoricalData((prevHistory) => {
+      const newEntry = {
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        aqi: aqi,
+      };
+      const updatedHistory = [...prevHistory, newEntry];
+      return updatedHistory.slice(-MAX_HISTORY_LENGTH);
+    });
 
-        if (newAqi > AQI_HAZARDOUS_THRESHOLD && prevAqi <= AQI_HAZARDOUS_THRESHOLD) {
-          triggerEmergency("High Pollution Detected");
-        }
+    if (aqi > AQI_HAZARDOUS_THRESHOLD && prevAqi <= AQI_HAZARDOUS_THRESHOLD) {
+      triggerEmergency("High Pollution Detected");
+    }
+  }, [aqi, triggerEmergency]);
 
-        return newAqi;
-      });
-    }, 5000); // Update every 5 seconds
-
-    return () => clearInterval(interval);
-  }, [triggerEmergency]);
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -74,7 +69,7 @@ export function Dashboard() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="monitor" className="mt-6">
-          <PollutionMonitor aqi={aqi} />
+          <PollutionMonitor aqi={aqi} loading={loading} error={error} />
         </TabsContent>
         <TabsContent value="alerts" className="mt-6">
           <EmergencyAlerts onTriggerEmergency={triggerEmergency} />
