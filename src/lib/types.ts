@@ -23,3 +23,8 @@ export type EmergencyType = {
     icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
     message: string;
 }
+
+export type AqiData = {
+  aqi: number | null;
+  dominantPollutant: string | null;
+};

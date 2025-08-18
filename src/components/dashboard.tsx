@@ -12,7 +12,7 @@ import { AQI_HAZARDOUS_THRESHOLD, MAX_HISTORY_LENGTH } from "@/lib/constants";
 import { useAqi } from "@/hooks/use-aqi";
 
 export function Dashboard() {
-  const { aqi, error, loading } = useAqi();
+  const { aqi, dominantPollutant, error, loading } = useAqi();
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
   const [emergency, setEmergency] = useState<Emergency>({
     type: null,
@@ -69,7 +69,7 @@ export function Dashboard() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="monitor" className="mt-6">
-          <PollutionMonitor aqi={aqi} loading={loading} error={error} />
+          <PollutionMonitor aqi={aqi} dominantPollutant={dominantPollutant} loading={loading} error={error} />
         </TabsContent>
         <TabsContent value="alerts" className="mt-6">
           <EmergencyAlerts onTriggerEmergency={triggerEmergency} />

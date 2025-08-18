@@ -12,11 +12,12 @@ import { Skeleton } from "./ui/skeleton";
 
 type PollutionMonitorProps = {
   aqi: number | null;
+  dominantPollutant: string | null;
   loading: boolean;
   error: string | null;
 };
 
-export function PollutionMonitor({ aqi, loading, error }: PollutionMonitorProps) {
+export function PollutionMonitor({ aqi, dominantPollutant, loading, error }: PollutionMonitorProps) {
   const [tips, setTips] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -26,7 +27,7 @@ export function PollutionMonitor({ aqi, loading, error }: PollutionMonitorProps)
     setIsLoading(true);
     setTips([]);
     try {
-      const result = await getPollutionReductionTips({ aqi });
+      const result = await getPollutionReductionTips({ aqi, dominantPollutant: dominantPollutant ?? undefined });
       setTips(result.tips);
     } catch (error) {
       console.error("Error getting pollution reduction tips:", error);
