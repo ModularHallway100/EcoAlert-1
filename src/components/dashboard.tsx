@@ -40,7 +40,7 @@ export function Dashboard() {
     if (aqi > AQI_HAZARDOUS_THRESHOLD && prevAqi <= AQI_HAZARDOUS_THRESHOLD) {
       triggerEmergency("High Pollution Detected");
     }
-  }, [aqi, triggerEmergency]);
+  }, [aqi]);
 
 
   return (
@@ -53,7 +53,7 @@ export function Dashboard() {
           Your Real-Time Environmental Guardian
         </p>
       </header>
-      <Tabs defaultValue="reports" className="w-full">
+      <Tabs defaultValue="monitor" className="w-full">
         <TabsList className="grid w-full grid-cols-3 bg-secondary/80 rounded-lg">
           <TabsTrigger value="monitor" className="py-3">
             <Wind className="mr-2 h-5 w-5" />

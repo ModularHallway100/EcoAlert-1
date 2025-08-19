@@ -3,65 +3,51 @@
 import { useState, useEffect } from 'react';
 import type { AqiData } from '@/lib/types';
 
-const API_KEY = process.env.NEXT_PUBLIC_WAQI_API_KEY;
+const POLLUTANTS = ["PM2.5", "O3", "NO2", "SO2", "CO"];
+
+// Function to generate a random AQI value that drifts over time
+const generateAqiValue = (previousAqi: number | null): number => {
+  if (previousAqi === null) {
+    return Math.floor(Math.random() * 50) + 1; // Start with a "Good" value
+  }
+  
+  // Create a gentle drift, with occasional larger jumps
+  const drift = (Math.random() - 0.45) * 25; 
+  let nextAqi = previousAqi + drift;
+
+  // Clamp the value between 1 and 450
+  nextAqi = Math.max(1, Math.min(nextAqi, 450));
+
+  return Math.round(nextAqi);
+};
+
 
 export function useAqi() {
   const [data, setData] = useState<AqiData>({ aqi: null, dominantPollutant: null });
-  const [error, setError] = useState<string | null>(null);
+  const [error] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const fetchAqi = (lat?: number, lon?: number) => {
-    const endpoint = lat && lon ? `geo:${lat};${lon}` : 'here';
-    setLoading(true);
-    setError(null);
-    fetch(`https://api.waqi.info/feed/${endpoint}/?token=${API_KEY}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(apiResponse => {
-        if (apiResponse.status === "ok") {
-          setData({
-            aqi: apiResponse.data.aqi,
-            dominantPollutant: apiResponse.data.dominentpol,
-          });
-        } else {
-          setError(apiResponse.data || "Could not fetch AQI data.");
-        }
-      })
-      .catch(err => {
-        console.error("Fetch error:", err);
-        setError("Failed to fetch AQI data. Please ensure location services are enabled and try again.");
-      })
-      .finally(() => setLoading(false));
-  };
-
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          fetchAqi(latitude, longitude);
-
-          const interval = setInterval(() => {
-            fetchAqi(latitude, longitude);
-          }, 300000); // Refresh every 5 minutes
-
-          return () => clearInterval(interval);
-        },
-        (err) => {
-          console.warn(`Location error: ${err.message}. Fetching for current location.`);
-          // Fallback to IP-based location if user denies permission
-          fetchAqi();
-        }
-      );
-    } else {
-      setError("Geolocation is not supported by your browser.");
-      // Fallback to IP-based location if geolocation is not supported
-      fetchAqi();
+    let currentAqi: number | null = null;
+    
+    const simulateAqi = () => {
+        setLoading(true);
+        currentAqi = generateAqiValue(currentAqi);
+        const dominantPollutant = POLLUTANTS[Math.floor(Math.random() * POLLUTANTS.length)];
+        
+        setData({
+            aqi: currentAqi,
+            dominantPollutant: dominantPollutant,
+        });
+        setLoading(false);
     }
+    
+    // Initial value
+    simulateAqi();
+    
+    const interval = setInterval(simulateAqi, 5000); // Refresh every 5 seconds
+
+    return () => clearInterval(interval);
   }, []);
 
   return { ...data, error, loading };
