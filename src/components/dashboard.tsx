@@ -12,7 +12,7 @@ import { AQI_HAZARDOUS_THRESHOLD, MAX_HISTORY_LENGTH } from "@/lib/constants";
 import { useAqi } from "@/hooks/use-aqi";
 
 export function Dashboard() {
-  const { aqi, dominantPollutant, error, loading } = useAqi();
+  const { aqi, dominantPollutant, loading, error } = useAqi();
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
   const [emergency, setEmergency] = useState<Emergency>({
     type: null,
@@ -40,13 +40,13 @@ export function Dashboard() {
     if (aqi > AQI_HAZARDOUS_THRESHOLD && prevAqi <= AQI_HAZARDOUS_THRESHOLD) {
       triggerEmergency("High Pollution Detected");
     }
-  }, [aqi]);
+  }, [aqi, triggerEmergency, historicalData]);
 
 
   return (
     <div className="w-full max-w-4xl mx-auto">
       <header className="text-center mb-8">
-        <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
+        <h1 className="text-4xl md:text-5xl font-bold text-primary">
           EcoAlert
         </h1>
         <p className="text-muted-foreground mt-2">
@@ -54,16 +54,16 @@ export function Dashboard() {
         </p>
       </header>
       <Tabs defaultValue="monitor" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-secondary/80 rounded-lg">
-          <TabsTrigger value="monitor" className="py-3">
+        <TabsList className="grid w-full grid-cols-3 bg-primary/10 rounded-lg">
+          <TabsTrigger value="monitor" className="py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Wind className="mr-2 h-5 w-5" />
             <span className="hidden md:inline">Pollution Monitor</span>
           </TabsTrigger>
-          <TabsTrigger value="alerts" className="py-3">
+          <TabsTrigger value="alerts" className="py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <AlertTriangle className="mr-2 h-5 w-5" />
             <span className="hidden md:inline">Emergency Alerts</span>
           </TabsTrigger>
-          <TabsTrigger value="reports" className="py-3">
+          <TabsTrigger value="reports" className="py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <LineChart className="mr-2 h-5 w-5" />
             <span className="hidden md:inline">Reports & Graphs</span>
           </TabsTrigger>

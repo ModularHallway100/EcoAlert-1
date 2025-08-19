@@ -12,9 +12,9 @@ type EmergencyAlertsProps = {
 export function EmergencyAlerts({ onTriggerEmergency }: EmergencyAlertsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <Card className="shadow-lg border-2 border-primary/20">
+      <Card className="shadow-lg rounded-lg">
         <CardHeader>
-          <CardTitle className="text-2xl font-headline text-primary">Manual Emergency Triggers</CardTitle>
+          <CardTitle className="text-2xl text-primary">Manual Emergency Triggers</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-muted-foreground">
@@ -25,7 +25,7 @@ export function EmergencyAlerts({ onTriggerEmergency }: EmergencyAlertsProps) {
               <Button
                 key={emergency.type}
                 variant="destructive"
-                className="py-6 text-lg bg-destructive/80 hover:bg-destructive"
+                className="py-6 text-lg rounded-lg"
                 onClick={() => onTriggerEmergency(emergency.type)}
               >
                 <emergency.icon className="mr-2 h-6 w-6" />
@@ -36,17 +36,17 @@ export function EmergencyAlerts({ onTriggerEmergency }: EmergencyAlertsProps) {
         </CardContent>
       </Card>
       
-      <Card className="shadow-lg border-2 border-primary/20 flex flex-col">
+      <Card className="shadow-lg rounded-lg flex flex-col">
         <CardHeader>
-          <CardTitle className="text-2xl font-headline text-primary">Stay Safe & Aware</CardTitle>
+          <CardTitle className="text-2xl text-primary">Stay Safe & Aware</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col flex-grow justify-between">
           <div className="relative w-full h-48 rounded-lg overflow-hidden mb-4">
              <Image 
                 src="https://placehold.co/600x400.png"
                 alt="Awareness Poster" 
-                layout="fill"
-                objectFit="cover"
+                fill
+                className="object-cover"
                 data-ai-hint="environmental awareness poster"
              />
           </div>

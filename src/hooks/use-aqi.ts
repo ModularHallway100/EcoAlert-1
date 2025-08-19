@@ -4,23 +4,23 @@ import { useState, useEffect } from 'react';
 import type { AqiData } from '@/lib/types';
 
 const POLLUTANTS = ["PM2.5", "O3", "NO2", "SO2", "CO"];
+const SIMULATION_CYCLE_TIME = 60 * 1000; // 60 seconds for a full cycle
+const SIMULATION_INTERVAL = 5000; // 5 seconds
 
-// Function to generate a random AQI value that drifts over time
-const generateAqiValue = (previousAqi: number | null): number => {
-  if (previousAqi === null) {
-    return Math.floor(Math.random() * 50) + 1; // Start with a "Good" value
-  }
-  
-  // Create a gentle drift, with occasional larger jumps
-  const drift = (Math.random() - 0.45) * 25; 
-  let nextAqi = previousAqi + drift;
-
-  // Clamp the value between 1 and 450
-  nextAqi = Math.max(1, Math.min(nextAqi, 450));
-
-  return Math.round(nextAqi);
+// Simulate a wave pattern for AQI
+const generateAqiValue = (): number => {
+    const now = Date.now();
+    const cycleProgress = (now % SIMULATION_CYCLE_TIME) / SIMULATION_CYCLE_TIME; // 0 to 1
+    
+    // Use a sine wave to create a smooth, repeating pattern from 0 to 1 and back to 0
+    const wave = Math.sin(cycleProgress * Math.PI * 2); // -1 to 1
+    
+    // Scale and shift the wave to map to the AQI range (e.g., 20 to 450)
+    const scaledWave = (wave + 1) / 2; // 0 to 1
+    const aqi = 20 + scaledWave * 430; // 20 to 450
+    
+    return Math.round(aqi);
 };
-
 
 export function useAqi() {
   const [data, setData] = useState<AqiData>({ aqi: null, dominantPollutant: null });
@@ -28,11 +28,8 @@ export function useAqi() {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    let currentAqi: number | null = null;
-    
     const simulateAqi = () => {
-        setLoading(true);
-        currentAqi = generateAqiValue(currentAqi);
+        const currentAqi = generateAqiValue();
         const dominantPollutant = POLLUTANTS[Math.floor(Math.random() * POLLUTANTS.length)];
         
         setData({
@@ -45,7 +42,7 @@ export function useAqi() {
     // Initial value
     simulateAqi();
     
-    const interval = setInterval(simulateAqi, 5000); // Refresh every 5 seconds
+    const interval = setInterval(simulateAqi, SIMULATION_INTERVAL);
 
     return () => clearInterval(interval);
   }, []);

@@ -42,24 +42,24 @@ export function PollutionMonitor({ aqi, dominantPollutant, loading, error }: Pol
   };
 
   return (
-    <Card className="shadow-lg border-2 border-primary/20">
+    <Card className="shadow-lg rounded-lg">
       <CardHeader>
-        <CardTitle className="text-2xl font-headline text-primary">Live Air Quality Index (AQI)</CardTitle>
+        <CardTitle className="text-2xl text-primary">Live Air Quality Index (AQI)</CardTitle>
         <CardDescription>
-          AQI based on your current location. Updates automatically.
+          Simulated sensor data, updated every 5 seconds.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center gap-8">
         {loading && (
           <div className="flex flex-col items-center gap-4">
             <Skeleton className="w-64 h-64 md:w-80 md:h-80 rounded-full" />
-            <p className="text-muted-foreground animate-pulse">Fetching local AQI data...</p>
+            <p className="text-muted-foreground animate-pulse">Initializing sensor...</p>
           </div>
         )}
         {error && (
           <Alert variant="destructive" className="w-full max-w-md">
             <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Error Fetching Data</AlertTitle>
+            <AlertTitle>Simulation Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -79,9 +79,9 @@ export function PollutionMonitor({ aqi, dominantPollutant, loading, error }: Pol
           {isLoading && aqi && <p className="mt-4 text-muted-foreground animate-pulse">Generating tips for AQI {Math.round(aqi)}...</p>}
 
           {tips.length > 0 && (
-             <Alert className="mt-6 text-left bg-primary/5 border-primary/20">
+             <Alert className="mt-6 text-left bg-primary/5 border-primary/20 rounded-lg">
               <Leaf className="h-5 w-5 text-primary" />
-              <AlertTitle className="font-headline text-primary">Your Personalized Eco-Tips</AlertTitle>
+              <AlertTitle className="font-bold text-primary">Your Personalized Eco-Tips</AlertTitle>
               <AlertDescription>
                 <ul className="mt-2 space-y-2 list-disc pl-5 text-foreground/90">
                     {tips.map((tip, index) => (

@@ -9,9 +9,6 @@ import {
 } from "@/components/ui/card";
 import {
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartConfig
 } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import type { HistoricalData } from "@/lib/types";
@@ -20,13 +17,6 @@ import { AQI_LEVELS } from "@/lib/constants";
 type ReportsGraphsProps = {
   data: HistoricalData[];
 };
-
-const chartConfig = {
-  aqi: {
-    label: "AQI",
-    color: "hsl(var(--primary))",
-  },
-} satisfies ChartConfig;
 
 const getAqiColor = (aqi: number) => {
     return AQI_LEVELS.find(level => aqi >= level.min && aqi <= level.max)?.color || '#ccc';
@@ -47,16 +37,16 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export function ReportsGraphs({ data }: ReportsGraphsProps) {
   return (
-    <Card className="shadow-lg border-2 border-primary/20">
+    <Card className="shadow-lg rounded-lg">
       <CardHeader>
-        <CardTitle className="text-2xl font-headline text-primary">Pollution History</CardTitle>
+        <CardTitle className="text-2xl text-primary">Pollution History</CardTitle>
         <CardDescription>
-          Showing the last {data.length} readings.
+          Showing the last {data.length} readings from the simulation.
         </CardDescription>
       </CardHeader>
       <CardContent>
         {data.length > 1 ? (
-          <ChartContainer config={chartConfig} className="h-[300px] w-full">
+          <ChartContainer config={{}} className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                     data={data}
