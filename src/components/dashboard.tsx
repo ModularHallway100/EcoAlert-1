@@ -40,7 +40,7 @@ export function Dashboard() {
     if (aqi > AQI_HAZARDOUS_THRESHOLD && prevAqi <= AQI_HAZARDOUS_THRESHOLD) {
       triggerEmergency("High Pollution Detected");
     }
-  }, [aqi, triggerEmergency, historicalData]);
+  }, [aqi, triggerEmergency]);
 
 
   return (
