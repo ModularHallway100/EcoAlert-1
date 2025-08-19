@@ -50,9 +50,13 @@ export function EmergencyAlerts({ onTriggerEmergency }: EmergencyAlertsProps) {
                 data-ai-hint="environmental awareness poster"
              />
           </div>
-          <blockquote className="italic text-muted-foreground border-l-4 border-accent pl-4">
+          <blockquote className="italic text-muted-foreground border-l-4 border-accent pl-4 mb-4">
             "The Earth does not belong to us: we belong to the Earth."
             <cite className="block not-italic text-right text-primary/80 mt-1">- Marlee Matlin</cite>
+          </blockquote>
+          <blockquote className="italic text-muted-foreground border-l-4 border-accent pl-4">
+            "Look deep into nature, and then you will understand everything better."
+            <cite className="block not-italic text-right text-primary/80 mt-1">- Albert Einstein</cite>
           </blockquote>
         </CardContent>
       </Card>

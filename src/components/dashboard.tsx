@@ -6,7 +6,8 @@ import { PollutionMonitor } from "./pollution-monitor";
 import { EmergencyAlerts } from "./emergency-alerts";
 import { ReportsGraphs } from "./reports-graphs";
 import { EmergencyDialog } from "./emergency-dialog";
-import { LineChart, AlertTriangle, Wind } from "lucide-react";
+import { Learn } from "./learn";
+import { LineChart, AlertTriangle, Wind, BookOpen } from "lucide-react";
 import type { HistoricalData, Emergency } from "@/lib/types";
 import { AQI_HAZARDOUS_THRESHOLD, MAX_HISTORY_LENGTH } from "@/lib/constants";
 import { useAqi } from "@/hooks/use-aqi";
@@ -54,7 +55,7 @@ export function Dashboard() {
         </p>
       </header>
       <Tabs defaultValue="monitor" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-primary/10 rounded-lg">
+        <TabsList className="grid w-full grid-cols-4 bg-primary/10 rounded-lg">
           <TabsTrigger value="monitor" className="py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Wind className="mr-2 h-5 w-5" />
             <span className="hidden md:inline">Pollution Monitor</span>
@@ -67,6 +68,10 @@ export function Dashboard() {
             <LineChart className="mr-2 h-5 w-5" />
             <span className="hidden md:inline">Reports & Graphs</span>
           </TabsTrigger>
+          <TabsTrigger value="learn" className="py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <BookOpen className="mr-2 h-5 w-5" />
+            <span className="hidden md:inline">Learn</span>
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="monitor" className="mt-6">
           <PollutionMonitor aqi={aqi} dominantPollutant={dominantPollutant} loading={loading} error={error} />
@@ -76,6 +81,9 @@ export function Dashboard() {
         </TabsContent>
         <TabsContent value="reports" className="mt-6">
           <ReportsGraphs data={historicalData} />
+        </TabsContent>
+        <TabsContent value="learn" className="mt-6">
+          <Learn />
         </TabsContent>
       </Tabs>
       <EmergencyDialog
