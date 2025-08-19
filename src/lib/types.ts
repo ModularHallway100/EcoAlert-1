@@ -4,6 +4,9 @@ import type { ForwardRefExoticComponent, RefAttributes } from "react";
 export type HistoricalData = {
   time: string;
   aqi: number;
+  ph: number;
+  turbidity: number;
+  noise: number;
 };
 
 export type Emergency = {
@@ -24,7 +27,10 @@ export type EmergencyType = {
     message: string;
 }
 
-export type AqiData = {
+export type EnvironmentalData = {
   aqi: number | null;
   dominantPollutant: string | null;
+  ph: number | null;
+  turbidity: number | null;
+  noise: number | null;
 };

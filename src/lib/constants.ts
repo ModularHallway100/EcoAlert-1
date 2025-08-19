@@ -3,6 +3,9 @@ import type { AQILevel, EmergencyType } from './types';
 
 export const MAX_HISTORY_LENGTH = 20;
 export const AQI_HAZARDOUS_THRESHOLD = 151;
+export const POLLUTANTS = ["PM2.5", "O3", "NO2", "SO2", "CO"];
+export const SIMULATION_CYCLE_TIME = 60 * 1000; // 60 seconds for a full cycle
+export const SIMULATION_INTERVAL = 5000; // 5 seconds
 
 export const AQI_LEVELS: AQILevel[] = [
   { level: "Good", min: 0, max: 50, color: "#22c55e" }, // green-500

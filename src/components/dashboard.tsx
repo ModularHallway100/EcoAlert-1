@@ -10,10 +10,10 @@ import { Learn } from "./learn";
 import { LineChart, AlertTriangle, Wind, BookOpen } from "lucide-react";
 import type { HistoricalData, Emergency } from "@/lib/types";
 import { AQI_HAZARDOUS_THRESHOLD, MAX_HISTORY_LENGTH } from "@/lib/constants";
-import { useAqi } from "@/hooks/use-aqi";
+import { useEnvironmentalData } from "@/hooks/use-aqi";
 
 export function Dashboard() {
-  const { aqi, dominantPollutant, loading, error } = useAqi();
+  const { aqi, dominantPollutant, ph, turbidity, noise, loading, error } = useEnvironmentalData();
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
   const [emergency, setEmergency] = useState<Emergency>({
     type: null,
@@ -25,7 +25,7 @@ export function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if (aqi === null) return;
+    if (aqi === null || ph === null || turbidity === null || noise === null) return;
     
     const prevAqi = historicalData.length > 0 ? historicalData[historicalData.length - 1].aqi : 0;
 
@@ -33,6 +33,9 @@ export function Dashboard() {
       const newEntry = {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
         aqi: aqi,
+        ph: ph,
+        turbidity: turbidity,
+        noise: noise
       };
       const updatedHistory = [...prevHistory, newEntry];
       return updatedHistory.slice(-MAX_HISTORY_LENGTH);
@@ -41,7 +44,7 @@ export function Dashboard() {
     if (aqi > AQI_HAZARDOUS_THRESHOLD && prevAqi <= AQI_HAZARDOUS_THRESHOLD) {
       triggerEmergency("High Pollution Detected");
     }
-  }, [aqi, triggerEmergency]);
+  }, [aqi, ph, turbidity, noise, triggerEmergency]);
 
 
   return (
@@ -74,7 +77,14 @@ export function Dashboard() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="monitor" className="mt-6">
-          <PollutionMonitor aqi={aqi} dominantPollutant={dominantPollutant} loading={loading} error={error} />
+          <PollutionMonitor 
+            aqi={aqi} 
+            dominantPollutant={dominantPollutant}
+            ph={ph}
+            turbidity={turbidity}
+            noise={noise}
+            loading={loading} 
+            error={error} />
         </TabsContent>
         <TabsContent value="alerts" className="mt-6">
           <EmergencyAlerts onTriggerEmergency={triggerEmergency} />
