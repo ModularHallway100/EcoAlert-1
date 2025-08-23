@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -52,7 +53,7 @@ export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise,
     setIsLoading(true);
     setTips([]);
     try {
-      const result = await getPollutionReductionTips({ aqi, dominantPollutant: dominantPollutant ?? undefined });
+      const result = await getPollutionReductionTips({ aqi, dominantPollutant: dominantPollutant ?? undefined, ph: ph ?? undefined, turbidity: turbidity ?? undefined, noise: noise ?? undefined });
       setTips(result.tips);
     } catch (error) {
       console.error("Error getting pollution reduction tips:", error);

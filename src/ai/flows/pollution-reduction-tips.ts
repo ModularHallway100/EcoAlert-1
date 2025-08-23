@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -17,6 +18,9 @@ const PollutionReductionTipsInputSchema = z.object({
     .string()
     .optional()
     .describe('The dominant pollutant contributing to the AQI.'),
+  ph: z.number().optional().describe('The current water pH level.'),
+  turbidity: z.number().optional().describe('The current water turbidity in NTU.'),
+  noise: z.number().optional().describe('The current noise level in dB.'),
 });
 export type PollutionReductionTipsInput = z.infer<typeof PollutionReductionTipsInputSchema>;
 
@@ -33,15 +37,26 @@ const prompt = ai.definePrompt({
   name: 'pollutionReductionTipsPrompt',
   input: {schema: PollutionReductionTipsInputSchema},
   output: {schema: PollutionReductionTipsOutputSchema},
-  prompt: `You are an environmental advisor providing personalized tips to users on how to reduce pollution based on the current Air Quality Index (AQI) and dominant pollutant.
+  prompt: `You are an environmental advisor providing personalized tips to users on how to reduce pollution based on a holistic view of their environment.
 
-  The current AQI is {{{aqi}}}.
+  Current Environmental Readings:
+  - Air Quality Index (AQI): {{{aqi}}}
   {{#if dominantPollutant}}
-  The dominant pollutant is {{{dominantPollutant}}}.
+  - Dominant Air Pollutant: {{{dominantPollutant}}}
+  {{/if}}
+  {{#if ph}}
+  - Water pH Level: {{{ph}}}
+  {{/if}}
+  {{#if turbidity}}
+  - Water Turbidity: {{{turbidity}}} NTU
+  {{/if}}
+  {{#if noise}}
+  - Noise Level: {{{noise}}} dB
   {{/if}}
 
-  Provide 3-5 actionable and specific tips the user can take to reduce pollution. Be direct and concise. Take into account the pollution levels and dominant pollutant when providing tips.
-  Tips:
+  Provide 3-5 actionable and specific tips the user can take to reduce overall pollution. Be direct, concise, and encouraging. Your tips should consider all the provided environmental factors. For example, if noise is high, suggest ways to reduce noise pollution. If water quality is poor, provide relevant tips.
+  
+  Structure your response under the 'tips' key.
   `,
 });
 
