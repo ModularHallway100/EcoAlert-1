@@ -20,7 +20,7 @@ export function EmergencyAlerts({ onTriggerEmergency }: EmergencyAlertsProps) {
           <p className="text-muted-foreground">
             Press a button to simulate an emergency and test the alert system.
           </p>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             {EMERGENCY_TYPES.map((emergency) => (
               <Button
                 key={emergency.type}
