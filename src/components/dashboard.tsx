@@ -11,6 +11,7 @@ import { LineChart, AlertTriangle, Wind, BookOpen } from "lucide-react";
 import type { HistoricalData, Emergency } from "@/lib/types";
 import { AQI_HAZARDOUS_THRESHOLD, MAX_HISTORY_LENGTH } from "@/lib/constants";
 import { useEnvironmentalData } from "@/hooks/use-aqi";
+import { ThemeToggle } from "./theme-toggle";
 
 export function Dashboard() {
   const { aqi, dominantPollutant, ph, turbidity, noise, loading, error } = useEnvironmentalData();
@@ -44,18 +45,21 @@ export function Dashboard() {
     if (aqi > AQI_HAZARDOUS_THRESHOLD && prevAqi <= AQI_HAZARDOUS_THRESHOLD) {
       triggerEmergency("High Pollution Detected");
     }
-  }, [aqi, ph, turbidity, noise, triggerEmergency]);
+  }, [aqi, ph, turbidity, noise, triggerEmergency, historicalData]);
 
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <header className="text-center mb-8">
+      <header className="text-center mb-8 relative">
         <h1 className="text-4xl md:text-5xl font-bold text-primary">
           EcoAlert
         </h1>
         <p className="text-muted-foreground mt-2">
           Your Real-Time Environmental Guardian
         </p>
+        <div className="absolute top-0 right-0">
+            <ThemeToggle />
+        </div>
       </header>
       <Tabs defaultValue="monitor" className="w-full">
         <TabsList className="grid w-full grid-cols-4 bg-primary/10 rounded-lg">
