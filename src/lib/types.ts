@@ -21,6 +21,13 @@ export type AQILevel = {
   color: string;
 };
 
+export type ThresholdLevel = {
+  level: 'Safe' | 'Caution' | 'Danger';
+  min: number;
+  max: number;
+  colorClass: string;
+}
+
 export type EmergencyType = {
     type: string;
     icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
@@ -33,4 +40,13 @@ export type EnvironmentalData = {
   ph: number | null;
   turbidity: number | null;
   noise: number | null;
+};
+
+export type AlertSettings = {
+  notificationsEnabled: boolean;
+  aqiThreshold: number;
+  phMinThreshold: number;
+  phMaxThreshold: number;
+  turbidityThreshold: number;
+  noiseThreshold: number;
 };

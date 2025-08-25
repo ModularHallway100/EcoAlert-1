@@ -1,5 +1,5 @@
-import { Flame, Siren, Car, HeartPulse, AlertTriangle } from 'lucide-react';
-import type { AQILevel, EmergencyType } from './types';
+import { Flame, Siren, Car, HeartPulse, AlertTriangle, Waves } from 'lucide-react';
+import type { AQILevel, EmergencyType, ThresholdLevel } from './types';
 
 export const MAX_HISTORY_LENGTH = 20;
 export const AQI_HAZARDOUS_THRESHOLD = 151;
@@ -15,6 +15,27 @@ export const AQI_LEVELS: AQILevel[] = [
   { level: "Very Unhealthy", min: 201, max: 300, color: "#a855f7" }, // purple-500
   { level: "Hazardous", min: 301, max: 500, color: "#881337" }, // rose-900
 ];
+
+export const PH_LEVELS: ThresholdLevel[] = [
+    { level: "Danger", min: 0, max: 5.9, colorClass: "bg-red-500" },
+    { level: "Caution", min: 6, max: 6.4, colorClass: "bg-yellow-500" },
+    { level: "Safe", min: 6.5, max: 7.5, colorClass: "bg-green-500" },
+    { level: "Caution", min: 7.6, max: 8, colorClass: "bg-yellow-500" },
+    { level: "Danger", min: 8.1, max: 14, colorClass: "bg-red-500" },
+];
+
+export const TURBIDITY_LEVELS: ThresholdLevel[] = [
+    { level: "Safe", min: 0, max: 25, colorClass: "bg-green-500" },
+    { level: "Caution", min: 26, max: 50, colorClass: "bg-yellow-500" },
+    { level: "Danger", min: 51, max: 100, colorClass: "bg-red-500" },
+];
+
+export const NOISE_LEVELS: ThresholdLevel[] = [
+    { level: "Safe", min: 0, max: 70, colorClass: "bg-green-500" },
+    { level: "Caution", min: 71, max: 90, colorClass: "bg-yellow-500" },
+    { level: "Danger", min: 91, max: 200, colorClass: "bg-red-500" },
+];
+
 
 export const EMERGENCY_TYPES: EmergencyType[] = [
     {
@@ -41,5 +62,15 @@ export const EMERGENCY_TYPES: EmergencyType[] = [
       type: "High Pollution Detected",
       icon: AlertTriangle,
       message: "Air quality has reached unhealthy levels. It is advised to stay indoors and use air purifiers.",
+    },
+    {
+      type: "Water Quality Alert",
+      icon: Waves,
+      message: "Water quality metrics are outside of the safe range. Avoid using tap water until further notice.",
+    },
+    {
+      type: "Noise Pollution Alert",
+      icon: AlertTriangle,
+      message: "Noise levels have reached a dangerous level. It is advised to use hearing protection.",
     }
   ];

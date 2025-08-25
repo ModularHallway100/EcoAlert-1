@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Skeleton } from "./ui/skeleton";
 import { Progress } from "./ui/progress";
+import { NOISE_LEVELS, PH_LEVELS, TURBIDITY_LEVELS } from "@/lib/constants";
 
 type PollutionMonitorProps = {
   aqi: number | null;
@@ -67,27 +68,11 @@ export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise,
     }
   };
 
-  const getPhColor = (value: number | null) => {
+  const getColor = (levels: { min: number, max: number, colorClass: string }[], value: number | null) => {
     if (value === null) return "bg-muted";
-    if (value >= 6.5 && value <= 7.5) return "bg-green-500";
-    if (value >= 6 && value < 6.5 || value > 7.5 && value <= 8) return "bg-yellow-500";
-    return "bg-red-500";
-  }
-
-  const getTurbidityColor = (value: number | null) => {
-    if (value === null) return "bg-muted";
-    if (value <= 25) return "bg-green-500";
-    if (value <= 50) return "bg-yellow-500";
-    return "bg-red-500";
-  }
-
-  const getNoiseColor = (value: number | null) => {
-    if (value === null) return "bg-muted";
-    if (value <= 70) return "bg-green-500";
-    if (value <= 90) return "bg-yellow-500";
-    return "bg-red-500";
-  }
-
+    const level = levels.find(l => value >= l.min && value <= l.max);
+    return level ? level.colorClass : "bg-muted";
+  };
 
   return (
     <Card className="shadow-lg rounded-lg">
@@ -125,7 +110,7 @@ export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise,
             unit=""
             progress={(ph ?? 0) / 14 * 100}
             max={14}
-            colorClass={getPhColor(ph)}
+            colorClass={getColor(PH_LEVELS, ph)}
           />
           <MetricCard
             icon={<Waves className="h-6 w-6 text-primary-foreground" />}
@@ -134,7 +119,7 @@ export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise,
             unit="NTU"
             progress={turbidity ?? 0}
             max={100}
-            colorClass={getTurbidityColor(turbidity)}
+            colorClass={getColor(TURBIDITY_LEVELS, turbidity)}
           />
           <MetricCard
             icon={<Ear className="h-6 w-6 text-primary-foreground" />}
@@ -143,7 +128,7 @@ export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise,
             unit="dB"
             progress={(noise ?? 0) / 120 * 100}
             max={120}
-            colorClass={getNoiseColor(noise)}
+            colorClass={getColor(NOISE_LEVELS, noise)}
           />
         </div>
         
