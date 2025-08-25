@@ -3,63 +3,32 @@
 
 import { useState, useEffect } from 'react';
 import type { EnvironmentalData, Coordinates } from '@/lib/types';
-import { SIMULATION_CYCLE_TIME, SIMULATION_INTERVAL, POLLUTANTS } from '@/lib/constants';
+import { SIMULATION_INTERVAL } from '@/lib/constants';
 
-// Simulate a wave pattern for a given range
-const simulateWave = (min: number, max: number, offset: number = 0): number => {
-    const now = Date.now();
-    const cycleProgress = ((now + offset) % SIMULATION_CYCLE_TIME) / SIMULATION_CYCLE_TIME; // 0 to 1
-    const wave = Math.sin(cycleProgress * Math.PI * 2); // -1 to 1
-    const scaledWave = (wave + 1) / 2; // 0 to 1
-    const value = min + scaledWave * (max - min);
-    return value;
-};
-
-// This function simulates fetching data from a remote API for a given location.
-const getSimulatedApiData = async (coordinates: Coordinates | null): Promise<EnvironmentalData> => {
-  console.log('Fetching simulated data for coordinates:', coordinates);
-  
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-
+// This function now fetches data from the Next.js API route.
+const getEnvironmentalApiData = async (coordinates: Coordinates | null): Promise<EnvironmentalData> => {
   // --- REAL API INTEGRATION POINT ---
-  // To integrate a real API, you would replace this simulation logic
-  // with a fetch call to your data source, passing the coordinates.
+  // To integrate a real API, you would replace this URL with your data source.
+  // You might need to add an API key to the headers or query parameters.
   // 
-  // Example:
-  // if (!coordinates) throw new Error("Location not available");
-  // const { latitude, longitude } = coordinates;
-  // const response = await fetch(`https://api.yourenvironmentalservice.com/data?lat=${latitude}&lon=${longitude}`);
-  // if (!response.ok) {
-  //   throw new Error('Failed to fetch data');
-  // }
-  // const realData = await response.json();
-  // return {
-  //   aqi: realData.aqi,
-  //   dominantPollutant: realData.dominantPollutant,
-  //   ph: realData.water.ph,
-  //   turbidity: realData.water.turbidity,
-  //   noise: realData.noise.level,
-  // };
+  // Example with API Key:
+  // const API_KEY = process.env.NEXT_PUBLIC_YOUR_API_KEY;
+  // const url = `https://api.yourenvironmentalservice.com/data?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`;
+  
+  let url = '/api/environment';
+  if (coordinates) {
+    url += `?lat=${coordinates.latitude}&lon=${coordinates.longitude}`;
+  }
 
-  // For now, we'll use the simulation as a fallback.
-  // The simulation can be made more realistic by using coordinates to slightly alter the values.
-  const aqiOffset = coordinates ? (coordinates.latitude + coordinates.longitude) * 100 : 0;
-  const currentAqi = simulateWave(20, 250, aqiOffset);
-  const currentPh = simulateWave(5.5, 8.5, aqiOffset + 10000);
-  const currentTurbidity = simulateWave(1, 60, aqiOffset + 20000);
-  const currentNoise = simulateWave(40, 100, aqiOffset + 30000);
+  const response = await fetch(url);
 
-  const pollutantIndex = Math.floor((currentAqi / 250) * POLLUTANTS.length) % POLLUTANTS.length;
-  const dominantPollutant = POLLUTANTS[pollutantIndex];
-    
-  return {
-    aqi: Math.round(currentAqi),
-    dominantPollutant: dominantPollutant,
-    ph: parseFloat(currentPh.toFixed(1)),
-    turbidity: Math.round(currentTurbidity),
-    noise: Math.round(currentNoise),
-  };
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to fetch environmental data');
+  }
+
+  const data: EnvironmentalData = await response.json();
+  return data;
 }
 
 export function useEnvironmentalData() {
@@ -85,7 +54,6 @@ export function useEnvironmentalData() {
         },
         (geoError) => {
           setError(`Geolocation error: ${geoError.message}. Using default values.`);
-          // Set a default location if permission is denied, so the app can still function
           setCoordinates({ latitude: 40.7128, longitude: -74.0060 }); 
         }
       );
@@ -104,7 +72,7 @@ export function useEnvironmentalData() {
       setError(null);
 
       try {
-        const result = await getSimulatedApiData(coordinates);
+        const result = await getEnvironmentalApiData(coordinates);
         setData(result);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred');
