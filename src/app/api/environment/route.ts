@@ -9,14 +9,14 @@ import { SIMULATION_CYCLE_TIME, POLLUTANTS } from '@/lib/constants';
 const getWaqiApiData = async (latitude: number, longitude: number): Promise<{ aqi: number | null, dominantPollutant: string | null }> => {
   const token = process.env.WAQI_API_TOKEN;
   if (!token) {
-    console.warn("WAQI API token not found. Using simulated AQI data. Get a token from https://aqicn.org/data-platform/token/");
+    console.warn("WAQI_API_TOKEN is not set. Using simulated AQI data. Get a token from https://aqicn.org/data-platform/token/");
     return { aqi: null, dominantPollutant: null };
   }
 
   const url = `https://api.waqi.info/feed/geo:${latitude};${longitude}/?token=${token}`;
   
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { next: { revalidate: 300 } }); // Cache for 5 minutes
     if (!response.ok) {
       console.error(`WAQI API request failed with status ${response.status}`);
       return { aqi: null, dominantPollutant: null };

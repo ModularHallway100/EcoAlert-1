@@ -48,11 +48,10 @@ export function Dashboard() {
     }
   }, [alertSettings.notificationsEnabled, notificationPermission]);
 
+  // Update historical data
   useEffect(() => {
     if (aqi === null || ph === null || turbidity === null || noise === null) return;
     
-    const prevAqi = historicalData.length > 0 ? historicalData[historicalData.length - 1].aqi : 0;
-
     setHistoricalData((prevHistory) => {
       const newEntry = {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
@@ -64,21 +63,28 @@ export function Dashboard() {
       const updatedHistory = [...prevHistory, newEntry];
       return updatedHistory.slice(-MAX_HISTORY_LENGTH);
     });
+  }, [aqi, ph, turbidity, noise]);
+  
+  // Check for emergencies - currently disabled
+  useEffect(() => {
+    // if (aqi === null || ph === null || turbidity === null || noise === null || historicalData.length === 0) return;
+    
+    // const prevAqi = historicalData.length > 1 ? historicalData[historicalData.length - 2].aqi : 0;
+    
+    // if (aqi > alertSettings.aqiThreshold && prevAqi <= alertSettings.aqiThreshold) {
+    //   triggerEmergency("High Pollution Detected", `AQI has exceeded your threshold of ${alertSettings.aqiThreshold}.`);
+    // }
+    //  if ((ph < alertSettings.phMinThreshold || ph > alertSettings.phMaxThreshold)) {
+    //   triggerEmergency("Water Quality Alert", `Water pH (${ph}) is outside your safe range of ${alertSettings.phMinThreshold}-${alertSettings.phMaxThreshold}.`);
+    // }
+    // if (turbidity > alertSettings.turbidityThreshold) {
+    //   triggerEmergency("Water Quality Alert", `Water turbidity (${turbidity} NTU) has exceeded your threshold of ${alertSettings.turbidityThreshold} NTU.`);
+    // }
+    // if (noise > alertSettings.noiseThreshold) {
+    //   triggerEmergency("Noise Pollution Alert", `Noise level (${noise} dB) has exceeded your threshold of ${alertSettings.noiseThreshold} dB.`);
+    // }
 
-    if (aqi > alertSettings.aqiThreshold && prevAqi <= alertSettings.aqiThreshold) {
-      triggerEmergency("High Pollution Detected", `AQI has exceeded your threshold of ${alertSettings.aqiThreshold}.`);
-    }
-     if ((ph < alertSettings.phMinThreshold || ph > alertSettings.phMaxThreshold)) {
-      triggerEmergency("Water Quality Alert", `Water pH (${ph}) is outside your safe range of ${alertSettings.phMinThreshold}-${alertSettings.phMaxThreshold}.`);
-    }
-    if (turbidity > alertSettings.turbidityThreshold) {
-      triggerEmergency("Water Quality Alert", `Water turbidity (${turbidity} NTU) has exceeded your threshold of ${alertSettings.turbidityThreshold} NTU.`);
-    }
-    if (noise > alertSettings.noiseThreshold) {
-      triggerEmergency("Noise Pollution Alert", `Noise level (${noise} dB) has exceeded your threshold of ${alertSettings.noiseThreshold} dB.`);
-    }
-
-  }, [aqi, ph, turbidity, noise, triggerEmergency, alertSettings]);
+  }, [aqi, ph, turbidity, noise, triggerEmergency, alertSettings, historicalData]);
 
 
   return (
