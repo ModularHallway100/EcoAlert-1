@@ -1,3 +1,4 @@
+
 "use client";
 
 import jsPDF from "jspdf";
@@ -13,19 +14,14 @@ import {
 import {
   ChartContainer,
 } from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, BarChart, Bar } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import type { HistoricalData } from "@/lib/types";
-import { AQI_LEVELS } from "@/lib/constants";
 import { Button } from "./ui/button";
 import { Download } from "lucide-react";
 
 type ReportsGraphsProps = {
   data: HistoricalData[];
 };
-
-const getAqiColor = (aqi: number) => {
-    return AQI_LEVELS.find(level => aqi >= level.min && aqi <= level.max)?.color || '#ccc';
-}
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -48,7 +44,7 @@ export function ReportsGraphs({ data }: ReportsGraphsProps) {
     if (data.length === 0) return;
 
     const headers = ["Time,AQI,pH,Turbidity (NTU),Noise (dB)"];
-    const rows = data.map(item => `${item.time},${item.aqi},${item.ph},${item.turbidity},${item.noise}`);
+    const rows = data.map(item => `${item.aqi},${item.ph},${item.turbidity},${item.noise}`);
     const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
     
     const encodedUri = encodeURI(csvContent);
@@ -102,10 +98,10 @@ export function ReportsGraphs({ data }: ReportsGraphsProps) {
                     <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--accent))" />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend />
-                    <Line yAxisId="left" type="monotone" dataKey="aqi" name="AQI" stroke="hsl(var(--primary))" strokeWidth={2} />
-                    <Line yAxisId="right" type="monotone" dataKey="noise" name="Noise (dB)" stroke="#82ca9d" />
-                    <Line yAxisId="right" type="monotone" dataKey="ph" name="pH" stroke="#ffc658" />
-                    <Line yAxisId="right" type="monotone" dataKey="turbidity" name="Turbidity (NTU)" stroke="#ff7300" />
+                    <Line yAxisId="left" type="monotone" dataKey="aqi" name="AQI" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                    <Line yAxisId="right" type="monotone" dataKey="noise" name="Noise (dB)" stroke="#82ca9d" dot={false} />
+                    <Line yAxisId="right" type="monotone" dataKey="ph" name="pH" stroke="#ffc658" dot={false} />
+                    <Line yAxisId="right" type="monotone" dataKey="turbidity" name="Turbidity (NTU)" stroke="#ff7300" dot={false} />
                 </LineChart>
             </ResponsiveContainer>
           </ChartContainer>
