@@ -8,7 +8,7 @@ import { SIMULATION_CYCLE_TIME, POLLUTANTS } from '@/lib/constants';
 // and add it to your .env file as WAQI_API_TOKEN.
 const getWaqiApiData = async (latitude: number, longitude: number): Promise<{ aqi: number | null, dominantPollutant: string | null }> => {
   const token = process.env.WAQI_API_TOKEN;
-  if (!token) {
+  if (!token || token === 'YOUR_WAQI_API_TOKEN_HERE') {
     console.warn("WAQI_API_TOKEN is not set. Using simulated AQI data. Get a token from https://aqicn.org/data-platform/token/");
     return { aqi: null, dominantPollutant: null };
   }
@@ -16,7 +16,7 @@ const getWaqiApiData = async (latitude: number, longitude: number): Promise<{ aq
   const url = `https://api.waqi.info/feed/geo:${latitude};${longitude}/?token=${token}`;
   
   try {
-    const response = await fetch(url, { next: { revalidate: 300 } }); // Cache for 5 minutes
+    const response = await fetch(url, { next: { revalidate: 600 } }); // Cache for 10 minutes
     if (!response.ok) {
       console.error(`WAQI API request failed with status ${response.status}`);
       return { aqi: null, dominantPollutant: null };
@@ -104,8 +104,13 @@ export async function GET(request: Request) {
       turbidity: simulatedData.turbidity!,
       noise: simulatedData.noise!,
     };
+    
+    return NextResponse.json(combinedData, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=300',
+      }
+    });
 
-    return NextResponse.json(combinedData);
   } catch (error) {
     console.error('API Error:', error);
     return NextResponse.json({ message: 'Error fetching environmental data' }, { status: 500 });
