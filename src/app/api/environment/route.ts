@@ -8,7 +8,7 @@ import { SIMULATION_CYCLE_TIME, POLLUTANTS } from '@/lib/constants';
 // and add it to your .env file as WAQI_API_TOKEN.
 const getWaqiApiData = async (latitude: number, longitude: number): Promise<{ aqi: number | null, dominantPollutant: string | null }> => {
   const token = process.env.WAQI_API_TOKEN;
-  if (!token || token === 'YOUR_TOKEN_HERE') {
+  if (!token) {
     console.warn("WAQI API token not found. Using simulated AQI data. Get a token from https://aqicn.org/data-platform/token/");
     return { aqi: null, dominantPollutant: null };
   }
