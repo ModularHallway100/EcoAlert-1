@@ -43,7 +43,7 @@ export function EmergencyAlerts({ onTriggerEmergency }: EmergencyAlertsProps) {
         <CardContent className="flex flex-col flex-grow justify-between">
           <div className="relative w-full h-48 rounded-lg overflow-hidden mb-4">
              <Image 
-                src="https://images.unsplash.com/photo-1579735324736-706b1e4ae077?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxlYXJ0aCUyMGFuZCUyMG5hdHVyZXxlbnwwfHx8fDE3NTU5Mzc1MDd8MA&ixlib=rb-4.1.0&q=80&w=1080"
+                src="https://placehold.co/600x400.png"
                 alt="Awareness Poster" 
                 fill
                 className="object-cover"
