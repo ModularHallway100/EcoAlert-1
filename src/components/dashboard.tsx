@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -45,7 +46,7 @@ export function Dashboard() {
     if (aqi > AQI_HAZARDOUS_THRESHOLD && prevAqi <= AQI_HAZARDOUS_THRESHOLD) {
       triggerEmergency("High Pollution Detected");
     }
-  }, [aqi, ph, turbidity, noise, triggerEmergency, historicalData]);
+  }, [aqi, ph, turbidity, noise, triggerEmergency]);
 
 
   return (
