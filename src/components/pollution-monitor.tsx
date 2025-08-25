@@ -5,13 +5,14 @@ import { useState } from "react";
 import { Gauge } from "./gauge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Sparkles, LoaderCircle, Leaf, AlertTriangle, Droplets, Waves, Ear } from "lucide-react";
-import { getPollutionReductionTips } from "@/ai/flows/pollution-reduction-tips";
+import { Sparkles, LoaderCircle, Leaf, AlertTriangle, Droplets, Waves, Ear, Forward } from "lucide-react";
+import { getPollutionReductionTips, type PollutionReductionTipsOutput } from "@/ai/flows/pollution-reduction-tips";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Skeleton } from "./ui/skeleton";
 import { Progress } from "./ui/progress";
 import { NOISE_LEVELS, PH_LEVELS, TURBIDITY_LEVELS } from "@/lib/constants";
+import { Separator } from "./ui/separator";
 
 type PollutionMonitorProps = {
   aqi: number | null;
@@ -45,23 +46,23 @@ const MetricCard = ({ icon, title, value, unit, progress, max, colorClass }: { i
 }
 
 export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise, loading, error }: PollutionMonitorProps) {
-  const [tips, setTips] = useState<string[]>([]);
+  const [tips, setTips] = useState<PollutionReductionTipsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleGetTips = async () => {
     if (aqi === null) return;
     setIsLoading(true);
-    setTips([]);
+    setTips(null);
     try {
       const result = await getPollutionReductionTips({ aqi, dominantPollutant: dominantPollutant ?? undefined, ph: ph ?? undefined, turbidity: turbidity ?? undefined, noise: noise ?? undefined });
-      setTips(result.tips);
+      setTips(result);
     } catch (error) {
       console.error("Error getting pollution reduction tips:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Could not fetch pollution reduction tips. Please try again.",
+        description: "Could not fetch AI-powered insights. Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -132,28 +133,36 @@ export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise,
           />
         </div>
         
-        <div className="md:col-span-2 w-full max-w-md text-center mx-auto">
+        <div className="md:col-span-2 w-full max-w-2xl text-center mx-auto">
           <Button onClick={handleGetTips} disabled={isLoading || aqi === null} size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground rounded-full px-8 py-6 text-lg">
             {isLoading ? (
               <LoaderCircle className="mr-2 h-6 w-6 animate-spin" />
             ) : (
               <Sparkles className="mr-2 h-6 w-6" />
             )}
-            Get AI-Powered Reduction Tips
+            Get AI-Powered Insights
           </Button>
 
-          {isLoading && aqi && <p className="mt-4 text-muted-foreground animate-pulse">Generating tips for AQI {Math.round(aqi)}...</p>}
+          {isLoading && aqi && <p className="mt-4 text-muted-foreground animate-pulse">Generating insights for your environment...</p>}
 
-          {tips.length > 0 && (
-             <Alert className="mt-6 text-left bg-primary/5 border-primary/20 rounded-lg">
+          {tips && (
+             <Alert className="mt-6 text-left bg-primary/5 border-primary/20 rounded-lg p-6">
               <Leaf className="h-5 w-5 text-primary" />
-              <AlertTitle className="font-bold text-primary">Your Personalized Eco-Tips</AlertTitle>
-              <AlertDescription>
-                <ul className="mt-2 space-y-2 list-disc pl-5 text-foreground/90">
-                    {tips.map((tip, index) => (
-                        <li key={index}>{tip}</li>
-                    ))}
-                </ul>
+              <AlertTitle className="font-bold text-primary text-xl mb-2">{tips.title}</AlertTitle>
+              <AlertDescription className="space-y-4">
+                <p className="text-foreground/90">{tips.insight}</p>
+                <Separator />
+                <div>
+                  <h4 className="font-semibold text-foreground flex items-center mb-2">
+                    <Forward className="h-4 w-4 mr-2" />
+                    What To Do Next:
+                  </h4>
+                  <ul className="space-y-2 list-disc pl-5 text-foreground/80">
+                      {tips.nextSteps.map((step, index) => (
+                          <li key={index}>{step}</li>
+                      ))}
+                  </ul>
+                </div>
               </AlertDescription>
             </Alert>
           )}
