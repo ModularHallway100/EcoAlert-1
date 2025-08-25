@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { EMERGENCY_TYPES } from "@/lib/constants";
 import type { Emergency } from "@/lib/types";
+import { Mail } from "lucide-react";
 
 type EmergencyDialogProps = {
   emergency: Emergency;
@@ -65,7 +66,11 @@ export function EmergencyDialog({ emergency, onOpenChange }: EmergencyDialogProp
             {emergencyDetails.message}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
+        <div className="flex items-center justify-center p-4 mt-2 bg-secondary/50 rounded-lg">
+          <Mail className="h-5 w-5 mr-3 text-accent animate-pulse" />
+          <p className="text-sm text-muted-foreground">Simulating SMS & Email alerts...</p>
+        </div>
+        <AlertDialogFooter className="mt-2">
           <AlertDialogAction className="px-8 py-4 text-lg">
             Acknowledge
           </AlertDialogAction>
