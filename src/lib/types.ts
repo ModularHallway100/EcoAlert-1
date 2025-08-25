@@ -1,3 +1,4 @@
+
 import type { LucideProps } from "lucide-react";
 import type { ForwardRefExoticComponent, RefAttributes } from "react";
 
@@ -49,4 +50,9 @@ export type AlertSettings = {
   phMaxThreshold: number;
   turbidityThreshold: number;
   noiseThreshold: number;
+};
+
+export type Coordinates = {
+  latitude: number;
+  longitude: number;
 };

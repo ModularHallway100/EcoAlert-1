@@ -16,7 +16,7 @@ import { useEnvironmentalData } from "@/hooks/use-aqi";
 import { ThemeToggle } from "./theme-toggle";
 
 export function Dashboard() {
-  const { aqi, dominantPollutant, ph, turbidity, noise, loading, error } = useEnvironmentalData();
+  const { aqi, dominantPollutant, ph, turbidity, noise, loading, error, coordinates } = useEnvironmentalData();
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
   const [emergency, setEmergency] = useState<Emergency>({
     type: null,
@@ -125,7 +125,8 @@ export function Dashboard() {
             turbidity={turbidity}
             noise={noise}
             loading={loading} 
-            error={error} />
+            error={error}
+            coordinates={coordinates} />
         </TabsContent>
         <TabsContent value="alerts" className="mt-6">
           <EmergencyAlerts onTriggerEmergency={triggerEmergency} />

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Gauge } from "./gauge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Sparkles, LoaderCircle, Leaf, AlertTriangle, Droplets, Waves, Ear, Forward } from "lucide-react";
+import { Sparkles, LoaderCircle, Leaf, AlertTriangle, Droplets, Waves, Ear, Forward, MapPin } from "lucide-react";
 import { getPollutionReductionTips, type PollutionReductionTipsOutput } from "@/ai/flows/pollution-reduction-tips";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
@@ -13,6 +13,7 @@ import { Skeleton } from "./ui/skeleton";
 import { Progress } from "./ui/progress";
 import { NOISE_LEVELS, PH_LEVELS, TURBIDITY_LEVELS } from "@/lib/constants";
 import { Separator } from "./ui/separator";
+import type { Coordinates } from "@/lib/types";
 
 type PollutionMonitorProps = {
   aqi: number | null;
@@ -22,6 +23,7 @@ type PollutionMonitorProps = {
   noise: number | null;
   loading: boolean;
   error: string | null;
+  coordinates: Coordinates | null;
 };
 
 const MetricCard = ({ icon, title, value, unit, progress, max, colorClass }: { icon: React.ReactNode, title: string, value: number | null, unit: string, progress: number, max: number, colorClass: string }) => {
@@ -45,7 +47,7 @@ const MetricCard = ({ icon, title, value, unit, progress, max, colorClass }: { i
   )
 }
 
-export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise, loading, error }: PollutionMonitorProps) {
+export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise, loading, error, coordinates }: PollutionMonitorProps) {
   const [tips, setTips] = useState<PollutionReductionTipsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -79,9 +81,21 @@ export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise,
     <Card className="shadow-lg rounded-lg">
       <CardHeader>
         <CardTitle className="text-2xl text-primary">Live Environmental Monitor</CardTitle>
-        <CardDescription>
-          Simulated sensor data, updated every 5 seconds.
-        </CardDescription>
+        <div className="flex justify-between items-center text-sm text-muted-foreground">
+          <p>
+            Simulated sensor data, updated every 5 seconds.
+          </p>
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-accent" />
+            {coordinates ? (
+              <span className="font-mono text-xs">
+                Lat: {coordinates.latitude.toFixed(4)}, Lon: {coordinates.longitude.toFixed(4)}
+              </span>
+            ) : (
+              <span className="text-xs animate-pulse">Fetching location...</span>
+            )}
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         <div className="flex flex-col items-center">
@@ -94,7 +108,7 @@ export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise,
           {error && (
             <Alert variant="destructive" className="w-full max-w-md">
               <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Simulation Error</AlertTitle>
+              <AlertTitle>Sensor Error</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
