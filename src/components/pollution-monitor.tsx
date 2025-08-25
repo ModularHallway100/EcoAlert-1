@@ -83,7 +83,7 @@ export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise,
         <CardTitle className="text-2xl text-primary">Live Environmental Monitor</CardTitle>
         <div className="flex justify-between items-center text-sm text-muted-foreground">
           <p>
-            Simulated sensor data, updated every 5 seconds.
+            Live AQI data via WAQI API. Water & noise data are simulated.
           </p>
           <div className="flex items-center gap-2">
             <MapPin className="h-4 w-4 text-accent" />
