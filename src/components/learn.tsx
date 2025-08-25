@@ -59,7 +59,7 @@ export function Learn() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Accordion type="multiple" className="w-full">
+          <Accordion type="single" collapsible className="w-full">
             {pollutionTips.map((tip, index) => (
               <AccordionItem value={`item-${index}`} key={index}>
                 <AccordionTrigger className="text-lg hover:no-underline">
@@ -85,7 +85,7 @@ export function Learn() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Accordion type="multiple" className="w-full">
+          <Accordion type="single" collapsible className="w-full">
             {emergencyTips.map((tip, index) => (
               <AccordionItem value={`item-emergency-${index}`} key={index}>
                 <AccordionTrigger className="text-lg hover:no-underline">
