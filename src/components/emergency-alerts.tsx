@@ -12,7 +12,7 @@ type EmergencyAlertsProps = {
 export function EmergencyAlerts({ onTriggerEmergency }: EmergencyAlertsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <Card className="shadow-lg rounded-lg">
+      <Card className="shadow-xl rounded-xl">
         <CardHeader>
           <CardTitle className="text-2xl text-primary">Manual Emergency Triggers</CardTitle>
         </CardHeader>
@@ -36,25 +36,25 @@ export function EmergencyAlerts({ onTriggerEmergency }: EmergencyAlertsProps) {
         </CardContent>
       </Card>
       
-      <Card className="shadow-lg rounded-lg flex flex-col">
+      <Card className="shadow-xl rounded-xl flex flex-col">
         <CardHeader>
           <CardTitle className="text-2xl text-primary">Stay Safe & Aware</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col flex-grow justify-between">
           <div className="relative w-full h-48 rounded-lg overflow-hidden mb-4">
              <Image 
-                src="https://placehold.co/600x400.png"
+                src="https://picsum.photos/600/400"
                 alt="Awareness Poster" 
                 fill
                 className="object-cover"
                 data-ai-hint="environmental awareness poster"
              />
           </div>
-          <blockquote className="italic text-muted-foreground border-l-4 border-accent pl-4 mb-4">
+          <blockquote className="italic text-muted-foreground border-l-4 border-primary/50 pl-4 mb-4">
             "The Earth does not belong to us: we belong to the Earth."
             <cite className="block not-italic text-right text-primary/80 mt-1">- Marlee Matlin</cite>
           </blockquote>
-          <blockquote className="italic text-muted-foreground border-l-4 border-accent pl-4">
+          <blockquote className="italic text-muted-foreground border-l-4 border-primary/50 pl-4">
             "Look deep into nature, and then you will understand everything better."
             <cite className="block not-italic text-right text-primary/80 mt-1">- Albert Einstein</cite>
           </blockquote>

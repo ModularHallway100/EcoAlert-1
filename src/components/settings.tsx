@@ -43,7 +43,7 @@ export function Settings({ settings, onSettingsChange, notificationPermission, s
   };
 
   return (
-    <Card className="shadow-lg rounded-lg">
+    <Card className="shadow-xl rounded-xl">
       <CardHeader>
         <CardTitle className="text-2xl text-primary">Alert Settings</CardTitle>
         <CardDescription>

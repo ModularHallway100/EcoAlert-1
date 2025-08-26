@@ -51,7 +51,7 @@ export function Learn() {
 
   return (
     <div className="space-y-8">
-      <Card className="shadow-lg rounded-lg">
+      <Card className="shadow-xl rounded-xl">
         <CardHeader>
           <CardTitle className="text-2xl text-primary flex items-center">
             <Leaf className="mr-3 h-7 w-7" />
@@ -64,7 +64,7 @@ export function Learn() {
               <AccordionItem value={`item-${index}`} key={index}>
                 <AccordionTrigger className="text-lg hover:no-underline">
                   <div className="flex items-center">
-                    <tip.icon className="mr-3 h-5 w-5 text-accent" />
+                    <tip.icon className="mr-3 h-5 w-5 text-primary" />
                     {tip.title}
                   </div>
                 </AccordionTrigger>
@@ -77,7 +77,7 @@ export function Learn() {
         </CardContent>
       </Card>
       
-      <Card className="shadow-lg rounded-lg">
+      <Card className="shadow-xl rounded-xl">
         <CardHeader>
           <CardTitle className="text-2xl text-destructive flex items-center">
             <ShieldCheck className="mr-3 h-7 w-7" />

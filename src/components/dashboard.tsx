@@ -88,37 +88,37 @@ export function Dashboard() {
 
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <header className="text-center mb-8 relative">
+    <div className="w-full max-w-5xl mx-auto">
+      <header className="text-center mb-8 relative p-4 bg-card/50 backdrop-blur-sm rounded-xl">
         <h1 className="text-4xl md:text-5xl font-bold text-primary">
           EcoAlert
         </h1>
         <p className="text-muted-foreground mt-2">
           Your Real-Time Environmental Guardian
         </p>
-        <div className="absolute top-0 right-0">
+        <div className="absolute top-4 right-4">
             <ThemeToggle />
         </div>
       </header>
       <Tabs defaultValue="monitor" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 bg-primary/10 rounded-lg">
-          <TabsTrigger value="monitor" className="py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+        <TabsList className="grid w-full grid-cols-5 bg-card/80 backdrop-blur-sm rounded-xl p-2 h-auto gap-2">
+          <TabsTrigger value="monitor" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
             <Wind className="mr-2 h-5 w-5" />
             <span className="hidden md:inline">Monitor</span>
           </TabsTrigger>
-          <TabsTrigger value="alerts" className="py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger value="alerts" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
             <AlertTriangle className="mr-2 h-5 w-5" />
             <span className="hidden md:inline">Alerts</span>
           </TabsTrigger>
-          <TabsTrigger value="reports" className="py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger value="reports" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
             <LineChart className="mr-2 h-5 w-5" />
             <span className="hidden md:inline">Reports</span>
           </TabsTrigger>
-          <TabsTrigger value="learn" className="py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger value="learn" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
             <BookOpen className="mr-2 h-5 w-5" />
             <span className="hidden md:inline">Learn</span>
           </TabsTrigger>
-          <TabsTrigger value="settings" className="py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger value="settings" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
             <SettingsIcon className="mr-2 h-5 w-5" />
             <span className="hidden md:inline">Settings</span>
           </TabsTrigger>

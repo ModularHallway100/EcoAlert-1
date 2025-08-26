@@ -72,7 +72,7 @@ export function ReportsGraphs({ data }: ReportsGraphsProps) {
   const chartData = data.map(d => ({ ...d, aqi: d.aqi, noise: d.noise, ph: d.ph, turbidity: d.turbidity }));
 
   return (
-    <Card className="shadow-lg rounded-lg">
+    <Card className="shadow-xl rounded-xl">
       <CardHeader>
         <CardTitle className="text-2xl text-primary">Environmental History</CardTitle>
         <CardDescription>

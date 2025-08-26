@@ -78,7 +78,7 @@ export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise,
   };
 
   return (
-    <Card className="shadow-lg rounded-lg">
+    <Card className="shadow-xl rounded-xl bg-card/80 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="text-2xl text-primary">Live Environmental Monitor</CardTitle>
         <div className="flex justify-between items-center text-sm text-muted-foreground">
@@ -86,7 +86,7 @@ export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise,
             Live AQI data via WAQI API. Water & noise data are simulated.
           </p>
           <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-accent" />
+            <MapPin className="h-4 w-4 text-primary" />
             {coordinates ? (
               <span className="font-mono text-xs">
                 Lat: {coordinates.latitude.toFixed(4)}, Lon: {coordinates.longitude.toFixed(4)}
@@ -148,7 +148,7 @@ export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise,
         </div>
         
         <div className="md:col-span-2 w-full max-w-2xl text-center mx-auto">
-          <Button onClick={handleGetTips} disabled={isLoading || aqi === null} size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground rounded-full px-8 py-6 text-lg">
+          <Button onClick={handleGetTips} disabled={isLoading || aqi === null} size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8 py-6 text-lg shadow-lg">
             {isLoading ? (
               <LoaderCircle className="mr-2 h-6 w-6 animate-spin" />
             ) : (
@@ -160,7 +160,7 @@ export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise,
           {isLoading && aqi && <p className="mt-4 text-muted-foreground animate-pulse">Generating insights for your environment...</p>}
 
           {tips && (
-             <Alert className="mt-6 text-left bg-primary/5 border-primary/20 rounded-lg p-6">
+             <Alert className="mt-6 text-left bg-card/50 border-primary/20 rounded-lg p-6">
               <Leaf className="h-5 w-5 text-primary" />
               <AlertTitle className="font-bold text-primary text-xl mb-2">{tips.title}</AlertTitle>
               <AlertDescription className="space-y-4">
