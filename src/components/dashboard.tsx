@@ -7,10 +7,10 @@ import { PollutionMonitor } from "./pollution-monitor";
 import { EmergencyAlerts } from "./emergency-alerts";
 import { ReportsGraphs } from "./reports-graphs";
 import { EmergencyDialog } from "./emergency-dialog";
-import { Learn } from "./learn";
+import { AIAssistant } from "./learn";
 import { Settings } from "./settings";
 import { Community } from "./community";
-import { LineChart, AlertTriangle, Wind, BookOpen, Users, Settings as SettingsIcon } from "lucide-react";
+import { LineChart, AlertTriangle, Wind, Sparkles, Users, Settings as SettingsIcon } from "lucide-react";
 import type { HistoricalData, Emergency, AlertSettings } from "@/lib/types";
 import { AQI_HAZARDOUS_THRESHOLD, MAX_HISTORY_LENGTH } from "@/lib/constants";
 import { useEnvironmentalData } from "@/hooks/use-aqi";
@@ -120,8 +120,8 @@ export function Dashboard() {
             <span className="hidden md:inline">Community</span>
           </TabsTrigger>
           <TabsTrigger value="learn" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
-            <BookOpen className="mr-2 h-5 w-5" />
-            <span className="hidden md:inline">Learn</span>
+            <Sparkles className="mr-2 h-5 w-5" />
+            <span className="hidden md:inline">Ask AI</span>
           </TabsTrigger>
           <TabsTrigger value="settings" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
             <SettingsIcon className="mr-2 h-5 w-5" />
@@ -149,7 +149,7 @@ export function Dashboard() {
           <Community />
         </TabsContent>
         <TabsContent value="learn" className="mt-6">
-          <Learn />
+          <AIAssistant />
         </TabsContent>
         <TabsContent value="settings" className="mt-6">
           <Settings 

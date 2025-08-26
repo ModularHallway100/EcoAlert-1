@@ -1,107 +1,129 @@
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Flame, HeartPulse, Leaf, Siren, ShieldCheck, Car } from "lucide-react"
 
-export function Learn() {
-  const pollutionTips = [
-    {
-      title: "Reduce Vehicle Emissions",
-      content: "Walk, bike, carpool, or use public transportation whenever possible. Combine errands to make fewer trips. Keep your car well-maintained to improve fuel efficiency and reduce emissions.",
-      icon: Car,
-    },
-    {
-      title: "Conserve Energy",
-      content: "Turn off lights and unplug electronics when not in use. Use energy-efficient appliances and switch to LED light bulbs. This reduces the demand on power plants, which are a major source of pollution.",
-      icon: Leaf,
-    },
-    {
-      title: "Minimize Waste",
-      content: "Follow the 3 R's: Reduce, Reuse, Recycle. Avoid single-use plastics and opt for reusable alternatives. Composting food scraps can also significantly reduce landfill waste and methane emissions.",
-      icon: Leaf,
-    },
-  ];
+"use client";
 
-  const emergencyTips = [
-    {
-      title: "In Case of Fire",
-      content: "If you see a fire, alert others and evacuate immediately. Stay low to the ground to avoid smoke inhalation. Never use an elevator during a fire. Have a designated meeting point outside.",
-      icon: Flame,
-    },
-    {
-      title: "If You Suspect a Gas Leak",
-      content: "Evacuate the area immediately. Do not use any electronics, light switches, or anything that could create a spark. From a safe distance, call your gas provider or emergency services.",
-      icon: Siren,
-    },
-    {
-      title: "Responding to an Accident",
-      content: "If you witness an accident, call for emergency help immediately. Do not move injured individuals unless they are in immediate danger. Secure the area if possible to prevent further incidents.",
-      icon: Car,
-    },
-    {
-      title: "Handling a Health Emergency",
-      content: "Stay calm and assess the situation. Call for medical help and provide clear information about the person's condition and your location. If you are trained, provide first aid until help arrives.",
-      icon: HeartPulse,
-    },
-  ];
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Sparkles, Bot, User, LoaderCircle } from "lucide-react";
+import { askEnvironmentalAssistant } from "@/ai/flows/environmental-assistant";
+import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export function AIAssistant() {
+  const [question, setQuestion] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!question.trim() || isLoading) return;
+
+    const userMessage: Message = { role: 'user', content: question };
+    setMessages(prev => [...prev, userMessage]);
+    setQuestion("");
+    setIsLoading(true);
+
+    try {
+      const assistantResponse = await askEnvironmentalAssistant(question);
+      const assistantMessage: Message = { role: 'assistant', content: assistantResponse };
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error("Error asking AI assistant:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to get a response from the AI. Please try again.",
+      });
+      // remove the user message if the API fails
+      setMessages(prev => prev.slice(0, -1));
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="space-y-8">
-      <Card className="shadow-xl rounded-xl">
-        <CardHeader>
-          <CardTitle className="text-2xl text-primary flex items-center">
-            <Leaf className="mr-3 h-7 w-7" />
-            Tips for a Greener Planet
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Accordion type="single" collapsible className="w-full">
-            {pollutionTips.map((tip, index) => (
-              <AccordionItem value={`item-${index}`} key={index}>
-                <AccordionTrigger className="text-lg hover:no-underline">
-                  <div className="flex items-center">
-                    <tip.icon className="mr-3 h-5 w-5 text-primary" />
-                    {tip.title}
+    <Card className="shadow-xl rounded-xl w-full max-w-3xl mx-auto">
+      <CardHeader className="text-center">
+        <CardTitle className="text-2xl text-primary flex items-center justify-center">
+          <Sparkles className="mr-3 h-7 w-7" />
+          Ask Your Environmental AI Assistant
+        </CardTitle>
+        <CardDescription>
+          Have a question about pollution, conservation, or safety? Ask away!
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="h-[400px] overflow-y-auto p-4 border rounded-lg mb-4 space-y-4 bg-secondary/20">
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+              <Bot className="h-12 w-12 mb-4" />
+              <p className="text-lg">Welcome!</p>
+              <p>You can ask me anything like:</p>
+              <em className="mt-2 text-sm">"How does PM2.5 affect my health?"</em>
+            </div>
+          ) : (
+            messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}
+              >
+                {message.role === 'assistant' && (
+                  <div className="p-2 bg-primary rounded-full text-primary-foreground">
+                    <Bot className="h-6 w-6" />
                   </div>
-                </AccordionTrigger>
-                <AccordionContent className="text-base text-muted-foreground pl-10">
-                  {tip.content}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </CardContent>
-      </Card>
-      
-      <Card className="shadow-xl rounded-xl">
-        <CardHeader>
-          <CardTitle className="text-2xl text-destructive flex items-center">
-            <ShieldCheck className="mr-3 h-7 w-7" />
-            Emergency Preparedness Guide
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Accordion type="single" collapsible className="w-full">
-            {emergencyTips.map((tip, index) => (
-              <AccordionItem value={`item-emergency-${index}`} key={index}>
-                <AccordionTrigger className="text-lg hover:no-underline">
-                  <div className="flex items-center">
-                    <tip.icon className="mr-3 h-5 w-5 text-destructive" />
-                    {tip.title}
+                )}
+                <div
+                  className={`max-w-xs md:max-w-md rounded-lg p-3 ${
+                    message.role === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card'
+                  }`}
+                >
+                  <p className="prose dark:prose-invert" dangerouslySetInnerHTML={{ __html: message.content.replace(/\n/g, '<br />') }} />
+                </div>
+                 {message.role === 'user' && (
+                  <div className="p-2 bg-muted rounded-full text-muted-foreground">
+                    <User className="h-6 w-6" />
                   </div>
-                </AccordionTrigger>
-                <AccordionContent className="text-base text-muted-foreground pl-10">
-                  {tip.content}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </CardContent>
-      </Card>
-    </div>
-  )
+                )}
+              </div>
+            ))
+          )}
+          {isLoading && (
+            <div className="flex items-start gap-3">
+               <div className="p-2 bg-primary rounded-full text-primary-foreground">
+                <Bot className="h-6 w-6" />
+              </div>
+              <div className="bg-card rounded-lg p-3">
+                <LoaderCircle className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            </div>
+          )}
+        </div>
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <Input
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="e.g., What is acid rain?"
+            disabled={isLoading}
+            className="flex-grow"
+          />
+          <Button type="submit" disabled={isLoading || !question.trim()}>
+            {isLoading ? (
+                <LoaderCircle className="h-5 w-5 animate-spin" />
+            ) : (
+                "Ask"
+            )}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
 }
