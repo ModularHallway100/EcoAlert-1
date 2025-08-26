@@ -43,7 +43,7 @@ export function AIAssistant() {
         description: "Failed to get a response from the AI. Please try again.",
       });
       // remove the user message if the API fails
-      setMessages(prev => prev.slice(0, -1));
+      setMessages(prev => prev.filter(msg => msg.content !== currentQuestion));
     } finally {
       setIsLoading(false);
     }
