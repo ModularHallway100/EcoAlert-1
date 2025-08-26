@@ -83,7 +83,7 @@ export function Settings({ settings, onSettingsChange, notificationPermission, s
             </Alert>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-2">
           <div className="flex justify-between items-center">
             <Label htmlFor="aqi-slider" className="text-base">
               AQI Threshold
@@ -98,9 +98,10 @@ export function Settings({ settings, onSettingsChange, notificationPermission, s
             value={[settings.aqiThreshold]}
             onValueChange={([value]) => onSettingsChange({ ...settings, aqiThreshold: value })}
           />
+           <p className="text-sm text-muted-foreground">An AQI value below 50 is generally considered good. Alerts are typically set for values over 100.</p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-2">
           <div className="flex justify-between items-center">
             <Label htmlFor="ph-slider" className="text-base">
               Water pH Safe Range
@@ -115,9 +116,10 @@ export function Settings({ settings, onSettingsChange, notificationPermission, s
             value={[settings.phMinThreshold, settings.phMaxThreshold]}
             onValueChange={([min, max]) => onSettingsChange({ ...settings, phMinThreshold: min, phMaxThreshold: max })}
           />
+          <p className="text-sm text-muted-foreground">The ideal range for drinking water is typically between 6.5 and 8.5 pH.</p>
         </div>
         
-        <div className="space-y-4">
+        <div className="space-y-2">
           <div className="flex justify-between items-center">
             <Label htmlFor="turbidity-slider" className="text-base">
               Turbidity Threshold (NTU)
@@ -132,9 +134,10 @@ export function Settings({ settings, onSettingsChange, notificationPermission, s
             value={[settings.turbidityThreshold]}
             onValueChange={([value]) => onSettingsChange({ ...settings, turbidityThreshold: value })}
           />
+           <p className="text-sm text-muted-foreground">For drinking water, turbidity should ideally be below 5 NTU (Nephelometric Turbidity Units).</p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-2">
           <div className="flex justify-between items-center">
             <Label htmlFor="noise-slider" className="text-base">
               Noise Threshold (dB)
@@ -149,6 +152,7 @@ export function Settings({ settings, onSettingsChange, notificationPermission, s
             value={[settings.noiseThreshold]}
             onValueChange={([value]) => onSettingsChange({ ...settings, noiseThreshold: value })}
           />
+          <p className="text-sm text-muted-foreground">Continuous exposure to noise above 85 dB can be harmful. A quiet library is about 40 dB.</p>
         </div>
 
       </CardContent>
