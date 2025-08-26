@@ -25,13 +25,14 @@ export function AIAssistant() {
     e.preventDefault();
     if (!question.trim() || isLoading) return;
 
-    const userMessage: Message = { role: 'user', content: question };
+    const currentQuestion = question;
+    const userMessage: Message = { role: 'user', content: currentQuestion };
     setMessages(prev => [...prev, userMessage]);
     setQuestion("");
     setIsLoading(true);
 
     try {
-      const assistantResponse = await askEnvironmentalAssistant(question);
+      const assistantResponse = await askEnvironmentalAssistant(currentQuestion);
       const assistantMessage: Message = { role: 'assistant', content: assistantResponse };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
