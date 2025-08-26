@@ -9,8 +9,8 @@ import { ReportsGraphs } from "./reports-graphs";
 import { EmergencyDialog } from "./emergency-dialog";
 import { AIAssistant } from "./learn";
 import { Settings } from "./settings";
-import { Community } from "./community";
-import { LineChart, AlertTriangle, Wind, Sparkles, Users, Settings as SettingsIcon } from "lucide-react";
+import { AIInsights } from "./ai-insights";
+import { LineChart, AlertTriangle, Wind, Sparkles, Settings as SettingsIcon } from "lucide-react";
 import type { HistoricalData, Emergency, AlertSettings } from "@/lib/types";
 import { AQI_HAZARDOUS_THRESHOLD, MAX_HISTORY_LENGTH } from "@/lib/constants";
 import { useEnvironmentalData } from "@/hooks/use-aqi";
@@ -115,9 +115,9 @@ export function Dashboard() {
             <LineChart className="mr-2 h-5 w-5" />
             <span className="hidden md:inline">Reports</span>
           </TabsTrigger>
-          <TabsTrigger value="community" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
-            <Users className="mr-2 h-5 w-5" />
-            <span className="hidden md:inline">Community</span>
+          <TabsTrigger value="insights" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
+            <Sparkles className="mr-2 h-5 w-5" />
+            <span className="hidden md:inline">AI Insights</span>
           </TabsTrigger>
           <TabsTrigger value="learn" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
             <Sparkles className="mr-2 h-5 w-5" />
@@ -145,8 +145,8 @@ export function Dashboard() {
         <TabsContent value="reports" className="mt-6">
           <ReportsGraphs data={historicalData} />
         </TabsContent>
-        <TabsContent value="community" className="mt-6">
-          <Community />
+        <TabsContent value="insights" className="mt-6">
+          <AIInsights />
         </TabsContent>
         <TabsContent value="learn" className="mt-6">
           <AIAssistant />
