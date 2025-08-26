@@ -9,7 +9,8 @@ import { ReportsGraphs } from "./reports-graphs";
 import { EmergencyDialog } from "./emergency-dialog";
 import { Learn } from "./learn";
 import { Settings } from "./settings";
-import { LineChart, AlertTriangle, Wind, BookOpen, Settings as SettingsIcon } from "lucide-react";
+import { Community } from "./community";
+import { LineChart, AlertTriangle, Wind, BookOpen, Users, Settings as SettingsIcon } from "lucide-react";
 import type { HistoricalData, Emergency, AlertSettings } from "@/lib/types";
 import { AQI_HAZARDOUS_THRESHOLD, MAX_HISTORY_LENGTH } from "@/lib/constants";
 import { useEnvironmentalData } from "@/hooks/use-aqi";
@@ -101,7 +102,7 @@ export function Dashboard() {
         </div>
       </header>
       <Tabs defaultValue="monitor" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 bg-card/80 backdrop-blur-sm rounded-xl p-2 h-auto gap-2">
+        <TabsList className="grid w-full grid-cols-6 bg-card/80 backdrop-blur-sm rounded-xl p-2 h-auto gap-2">
           <TabsTrigger value="monitor" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
             <Wind className="mr-2 h-5 w-5" />
             <span className="hidden md:inline">Monitor</span>
@@ -113,6 +114,10 @@ export function Dashboard() {
           <TabsTrigger value="reports" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
             <LineChart className="mr-2 h-5 w-5" />
             <span className="hidden md:inline">Reports</span>
+          </TabsTrigger>
+          <TabsTrigger value="community" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
+            <Users className="mr-2 h-5 w-5" />
+            <span className="hidden md:inline">Community</span>
           </TabsTrigger>
           <TabsTrigger value="learn" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
             <BookOpen className="mr-2 h-5 w-5" />
@@ -139,6 +144,9 @@ export function Dashboard() {
         </TabsContent>
         <TabsContent value="reports" className="mt-6">
           <ReportsGraphs data={historicalData} />
+        </TabsContent>
+        <TabsContent value="community" className="mt-6">
+          <Community />
         </TabsContent>
         <TabsContent value="learn" className="mt-6">
           <Learn />
