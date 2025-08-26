@@ -26,7 +26,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { MessageSquareWarning, Recycle, Trash2, MapPin, Clock } from "lucide-react";
+import { MessageSquareWarning, Recycle, Trash2, MapPin, Clock, Bot, AlertTriangle, LoaderCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { summarizeReports, type SummarizeReportsOutput, type Report } from "@/ai/flows/summarize-reports";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { Badge } from "./ui/badge";
 
 const reportSchema = z.object({
   reportType: z.string({
@@ -43,7 +47,7 @@ const reportSchema = z.object({
 });
 
 // Mock data for recent reports
-const recentReports = [
+const recentReports: (Report & {id: number, time: string, icon: React.ElementType})[] = [
   {
     id: 1,
     type: "Illegal Dumping",
@@ -70,6 +74,67 @@ const recentReports = [
   },
 ];
 
+const AISummary = () => {
+    const [summary, setSummary] = useState<SummarizeReportsOutput | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchSummary = async () => {
+            setLoading(true);
+            try {
+                const reportData = recentReports.map(({ id, time, icon, ...report }) => report);
+                const result = await summarizeReports({ reports: reportData });
+                setSummary(result);
+            } catch (error) {
+                console.error("Error fetching AI summary:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSummary();
+    }, []);
+
+    const priorityVariant = {
+        'High': 'destructive',
+        'Medium': 'secondary',
+        'Low': 'default'
+    } as const;
+    
+
+    return (
+        <Card className="lg:col-span-3 shadow-xl rounded-xl bg-card/80 backdrop-blur-sm border-primary/20">
+            <CardHeader>
+                <CardTitle className="text-2xl text-primary flex items-center">
+                    <Bot className="h-7 w-7 mr-3" />
+                    AI-Powered Community Summary
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                {loading ? (
+                    <div className="flex items-center text-muted-foreground">
+                        <LoaderCircle className="h-5 w-5 mr-2 animate-spin" />
+                        <p>Analyzing recent community reports...</p>
+                    </div>
+                ) : summary ? (
+                    <Alert className="border-0">
+                        <AlertTriangle className="h-5 w-5 text-primary" />
+                        <div className="flex justify-between items-start">
+                             <AlertTitle className="font-bold text-primary text-xl mb-2">{summary.title}</AlertTitle>
+                             <Badge variant={priorityVariant[summary.priority] || 'default'}>{summary.priority} Priority</Badge>
+                        </div>
+                        <AlertDescription className="text-foreground/90">
+                            {summary.summary}
+                        </AlertDescription>
+                    </Alert>
+                ) : (
+                    <p className="text-muted-foreground">Could not load AI summary.</p>
+                )}
+            </CardContent>
+        </Card>
+    )
+}
+
 export function Community() {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof reportSchema>>({
@@ -92,6 +157,8 @@ export function Community() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      <AISummary />
+
       <Card className="lg:col-span-1 shadow-xl rounded-xl">
         <CardHeader>
           <CardTitle className="text-2xl text-primary">Report an Incident</CardTitle>
