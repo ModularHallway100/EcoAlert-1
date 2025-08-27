@@ -37,13 +37,26 @@ export function AIAssistant() {
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error("Error asking AI assistant:", error);
+      
+      // Show fallback response when AI is unavailable
+      const fallbackResponse = `I'm currently experiencing technical difficulties with my AI service. While I'm offline, here are some general environmental tips:
+
+• Check your local air quality index before outdoor activities
+• Stay hydrated, especially during hot weather
+• Limit exposure to high pollution areas
+• Use air purifiers indoors when possible
+• Monitor water quality reports in your area
+
+For more personalized assistance, please check your AI configuration in the AI Status tab.`;
+      
+      const assistantMessage: Message = { role: 'assistant', content: fallbackResponse };
+      setMessages(prev => [...prev, assistantMessage]);
+      
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to get a response from the AI. Please try again.",
+        title: "AI Service Unavailable",
+        description: "Showing general tips while AI service is being configured.",
       });
-      // remove the user message if the API fails
-      setMessages(prev => prev.filter(msg => msg.content !== currentQuestion));
     } finally {
       setIsLoading(false);
     }

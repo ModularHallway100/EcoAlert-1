@@ -61,10 +61,28 @@ export function PollutionMonitor({ aqi, dominantPollutant, ph, turbidity, noise,
       setTips(result);
     } catch (error) {
       console.error("Error getting pollution reduction tips:", error);
+      
+      // Show fallback tips when AI is unavailable
+      const fallbackTips = {
+        title: "General Environmental Health Tips",
+        insight: "While AI features are temporarily unavailable, here are some general recommendations for your environment. For more personalized insights, please check your AI configuration in the AI Status tab.",
+        nextSteps: [
+          "Monitor local air quality reports regularly",
+          "Stay hydrated and maintain a healthy diet",
+          "Limit outdoor activities during high pollution periods",
+          "Use air purifiers indoors when possible",
+          "Check water quality reports in your area",
+          "Use noise-cancelling headphones in loud environments"
+        ],
+        priority: "medium",
+        timestamp: new Date().toISOString()
+      };
+      
+      setTips(fallbackTips);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Could not fetch AI-powered insights. Please try again.",
+        title: "AI Service Unavailable",
+        description: "Showing general tips while AI service is being configured.",
       });
     } finally {
       setIsLoading(false);

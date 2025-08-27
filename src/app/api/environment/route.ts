@@ -44,14 +44,35 @@ const getWaqiApiData = async (latitude: number, longitude: number): Promise<{ aq
 };
 
 
-// Simulate a wave pattern for a given range
+// Simulate a wave pattern for a given range with more realistic variations
 const simulateWave = (min: number, max: number, offset: number = 0): number => {
     const now = Date.now();
     const cycleProgress = ((now + offset) % SIMULATION_CYCLE_TIME) / SIMULATION_CYCLE_TIME; // 0 to 1
     const wave = Math.sin(cycleProgress * Math.PI * 2); // -1 to 1
     const scaledWave = (wave + 1) / 2; // 0 to 1
-    const value = min + scaledWave * (max - min);
-    return value;
+    
+    // Add some random variation for realism
+    const randomFactor = 0.9 + Math.random() * 0.2; // 0.9 to 1.1
+    const value = min + scaledWave * (max - min) * randomFactor;
+    
+    // Ensure value stays within bounds
+    return Math.max(min, Math.min(max, value));
+};
+
+// Simulate more realistic daily patterns
+const simulateDailyPattern = (min: number, max: number, hourOffset: number = 0): number => {
+    const now = Date.now();
+    const hour = ((now / (1000 * 60 * 60)) + hourOffset) % 24; // Current hour (0-23)
+    
+    // Create a realistic daily pattern (e.g., higher pollution during rush hours)
+    const dailyPattern = Math.sin((hour - 6) * Math.PI / 12); // Peak at 6 PM
+    const normalizedPattern = (dailyPattern + 1) / 2; // 0 to 1
+    
+    // Add some random variation
+    const randomFactor = 0.9 + Math.random() * 0.2;
+    const value = min + normalizedPattern * (max - min) * randomFactor;
+    
+    return Math.max(min, Math.min(max, value));
 };
 
 // This function simulates data for metrics NOT provided by the WAQI API.
@@ -59,9 +80,14 @@ const getSimulatedSensorData = (latitude?: number, longitude?: number): Partial<
   // Use coordinates to slightly alter the simulation values for realism
   const locationOffset = latitude && longitude ? (latitude + longitude) * 100 : 0;
 
-  const currentPh = simulateWave(5.5, 8.5, locationOffset + 10000);
-  const currentTurbidity = simulateWave(1, 60, locationOffset + 20000);
-  const currentNoise = simulateWave(40, 100, locationOffset + 30000);
+  // Water pH should be relatively stable with small variations
+  const currentPh = simulateWave(6.8, 7.4, locationOffset + 10000);
+  
+  // Turbidity can vary more, especially after rain or in windy conditions
+  const currentTurbidity = simulateDailyPattern(5, 45, locationOffset + 20000);
+  
+  // Noise levels follow daily patterns (higher during day, lower at night)
+  const currentNoise = simulateDailyPattern(45, 85, locationOffset + 30000);
     
   return {
     ph: parseFloat(currentPh.toFixed(1)),
@@ -91,9 +117,17 @@ export async function GET(request: Request) {
     let finalDominantPollutant = dominantPollutant;
 
     if (aqi === null) {
-      const simulatedAqi = simulateWave(20, 250);
+      // Simulate more realistic AQI patterns based on time of day
+      const simulatedAqi = simulateDailyPattern(30, 180);
       finalAqi = Math.round(simulatedAqi);
-      const pollutantIndex = Math.floor((simulatedAqi / 250) * POLLUTANTS.length) % POLLUTANTS.length;
+      
+      // Choose dominant pollutant based on AQI level
+      let pollutantIndex;
+      if (simulatedAqi < 50) pollutantIndex = 0; // PM2.5
+      else if (simulatedAqi < 100) pollutantIndex = Math.floor(Math.random() * 2); // PM2.5 or O3
+      else if (simulatedAqi < 150) pollutantIndex = Math.floor(Math.random() * 3); // PM2.5, O3, or NO2
+      else pollutantIndex = Math.floor(Math.random() * POLLUTANTS.length); // Any pollutant
+      
       finalDominantPollutant = POLLUTANTS[pollutantIndex];
     }
     

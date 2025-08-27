@@ -10,7 +10,8 @@ import { EmergencyDialog } from "./emergency-dialog";
 import { AIAssistant } from "./learn";
 import { Settings } from "./settings";
 import { AIInsights } from "./ai-insights";
-import { LineChart, AlertTriangle, Wind, Sparkles, Settings as SettingsIcon } from "lucide-react";
+import { AIStatus } from "./ai-status";
+import { LineChart, AlertTriangle, Wind, Sparkles, Settings as SettingsIcon, Bot } from "lucide-react";
 import type { HistoricalData, Emergency, AlertSettings } from "@/lib/types";
 import { AQI_HAZARDOUS_THRESHOLD, MAX_HISTORY_LENGTH } from "@/lib/constants";
 import { useEnvironmentalData } from "@/hooks/use-aqi";
@@ -53,7 +54,7 @@ export function Dashboard() {
   useEffect(() => {
     if (aqi === null || ph === null || turbidity === null || noise === null) return;
     
-    setHistoricalData((prevHistory) => {
+    setHistoricalData((prevHistory: HistoricalData[]) => {
       const newEntry = {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
         aqi: aqi,
@@ -102,7 +103,7 @@ export function Dashboard() {
         </div>
       </header>
       <Tabs defaultValue="monitor" className="w-full">
-        <TabsList className="grid w-full grid-cols-6 bg-card/80 backdrop-blur-sm rounded-xl p-2 h-auto gap-2">
+        <TabsList className="grid w-full grid-cols-7 bg-card/80 backdrop-blur-sm rounded-xl p-2 h-auto gap-2">
           <TabsTrigger value="monitor" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
             <Wind className="mr-2 h-5 w-5" />
             <span className="hidden md:inline">Monitor</span>
@@ -123,6 +124,10 @@ export function Dashboard() {
             <Sparkles className="mr-2 h-5 w-5" />
             <span className="hidden md:inline">Ask AI</span>
           </TabsTrigger>
+          <TabsTrigger value="ai-status" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
+            <Bot className="mr-2 h-5 w-5" />
+            <span className="hidden md:inline">AI Status</span>
+          </TabsTrigger>
           <TabsTrigger value="settings" className="py-2.5 text-md rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 ease-in-out hover:bg-primary/20">
             <SettingsIcon className="mr-2 h-5 w-5" />
             <span className="hidden md:inline">Settings</span>
@@ -140,7 +145,13 @@ export function Dashboard() {
             coordinates={coordinates} />
         </TabsContent>
         <TabsContent value="alerts" className="mt-6">
-          <EmergencyAlerts onTriggerEmergency={triggerEmergency} />
+          <EmergencyAlerts
+            onTriggerEmergency={triggerEmergency}
+            aqi={aqi}
+            ph={ph}
+            turbidity={turbidity}
+            noise={noise}
+          />
         </TabsContent>
         <TabsContent value="reports" className="mt-6">
           <ReportsGraphs data={historicalData} />
@@ -151,10 +162,13 @@ export function Dashboard() {
         <TabsContent value="learn" className="mt-6">
           <AIAssistant />
         </TabsContent>
+        <TabsContent value="ai-status" className="mt-6">
+          <AIStatus />
+        </TabsContent>
         <TabsContent value="settings" className="mt-6">
-          <Settings 
-            settings={alertSettings} 
-            onSettingsChange={setAlertSettings} 
+          <Settings
+            settings={alertSettings}
+            onSettingsChange={setAlertSettings}
             notificationPermission={notificationPermission}
             setNotificationPermission={setNotificationPermission}
             />
@@ -162,7 +176,7 @@ export function Dashboard() {
       </Tabs>
       <EmergencyDialog
         emergency={emergency}
-        onOpenChange={(isOpen) => setEmergency((e) => ({ ...e, active: isOpen }))}
+        onOpenChange={(isOpen) => setEmergency((e: Emergency) => ({ ...e, active: isOpen }))}
       />
     </div>
   );
