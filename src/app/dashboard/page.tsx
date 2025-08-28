@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Dashboard as DashboardComponent } from '@/components/dashboard';
 import { AdaptiveDashboard } from '@/components/adaptive-dashboard';
+import EmergencyCommandCenter from '@/components/emergency-command-center';
 import { useAuth } from '@/components/auth-provider';
 import { useSocket } from '@/components/socket-provider';
 import { useAnalytics } from '@/components/analytics-provider';
@@ -229,11 +230,15 @@ export default function DashboardPage() {
 
         {/* Main Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
             <TabsTrigger value="alerts">Alerts</TabsTrigger>
             <TabsTrigger value="community">Community</TabsTrigger>
+            <TabsTrigger value="command-center">
+              <Shield className="h-4 w-4 mr-2" />
+              Command Center
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -332,6 +337,9 @@ export default function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+          <TabsContent value="command-center" className="space-y-6">
+            <EmergencyCommandCenter />
           </TabsContent>
         </Tabs>
       </main>

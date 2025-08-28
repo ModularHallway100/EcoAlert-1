@@ -23,12 +23,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    if (profile && profile.id) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
-  }, [profile]);
+    // MOCK: For development, always assume user is authenticated
+    setIsAuthenticated(true);
+  }, []);
 
   const login = async (credentials: any) => {
     try {

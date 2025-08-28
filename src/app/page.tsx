@@ -3,13 +3,13 @@ import { cookies } from 'next/headers';
 
 // Check if user is authenticated and redirect accordingly
 async function checkAuth() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('auth-token')?.value;
+  // const cookieStore = await cookies();
+  // const token = cookieStore.get('auth-token')?.value;
   
-  if (!token) {
-    // Redirect to onboarding for new users
-    redirect('/onboarding');
-  }
+  // if (!token) {
+  //   // Redirect to onboarding for new users
+  //   redirect('/onboarding');
+  // }
   
   // For now, redirect to dashboard
   redirect('/dashboard');

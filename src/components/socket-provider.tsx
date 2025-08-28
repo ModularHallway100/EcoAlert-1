@@ -25,61 +25,61 @@ export function SocketProvider({ children }: SocketProviderProps) {
   const [alerts, setAlerts] = useState<any[]>([]);
 
   useEffect(() => {
-    let socketConnection: Socket;
+    // MOCK IMPLEMENTATION
+    const eventListeners = new Map<string, (...args: any[]) => void>();
 
-    const connectSocket = async () => {
-      const { io } = await import('socket.io-client');
-      socketConnection = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001', {
-        transports: ['websocket', 'polling'],
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 5000,
-      });
-
-      // Connection events
-      socketConnection.on('connect', () => {
-        console.log('Connected to socket server');
-        setIsConnected(true);
-      });
-
-      socketConnection.on('disconnect', (reason: any) => {
-        console.log('Disconnected from socket server:', reason);
-        setIsConnected(false);
-      });
-
-      // Listen for real-time sensor data
-      socketConnection.on('sensor-data', (data: any) => {
-        setSensorData(data);
-      });
-
-      // Listen for alerts
-      socketConnection.on('alert', (alert: any) => {
-        setAlerts(prev => [alert, ...prev.slice(0, 9)]); // Keep last 10 alerts
-      });
-
-      // Listen for emergency broadcasts
-      socketConnection.on('emergency-broadcast', (emergency: any) => {
-        // Handle emergency broadcasts (could show notifications, etc.)
-        console.log('Emergency broadcast received:', emergency);
-      });
-
-      // Listen for community updates
-      socketConnection.on('community-update', (update: any) => {
-        // Handle community updates
-        console.log('Community update received:', update);
-      });
-
-      setSocket(socketConnection);
+    const mockSocket = {
+      on: (event: string, callback: (...args: any[]) => void) => {
+        eventListeners.set(event, callback);
+      },
+      connect: () => {
+        console.log('Mock socket connected');
+        eventListeners.get('connect')?.();
+      },
+      disconnect: () => {
+        console.log('Mock socket disconnected');
+        eventListeners.get('disconnect')?.('client-side disconnect');
+      },
+      // Add other methods if needed
+      emit: (event: string, ...args: any[]) => {
+        console.log(`Mock socket emitting event "${event}" with args:`, args);
+      }
     };
 
-    connectSocket();
+    setSocket(mockSocket as any);
+    setIsConnected(true);
+    console.log('Mock socket provider initialized.');
+
+    // Simulate connection
+    mockSocket.connect();
+
+    // Simulate receiving sensor data every 3 seconds
+    const sensorInterval = setInterval(() => {
+      const mockData = {
+        id: `sensor-${Math.floor(Math.random() * 100)}`,
+        type: 'air_quality',
+        value: Math.random() * 100,
+        timestamp: new Date().toISOString(),
+      };
+      eventListeners.get('sensor-data')?.(mockData);
+    }, 3000);
+
+    // Simulate receiving an alert every 10 seconds
+    const alertInterval = setInterval(() => {
+      const mockAlert = {
+        id: `alert-${Date.now()}`,
+        message: 'High pollution levels detected in your area.',
+        level: 'warning',
+        timestamp: new Date().toISOString(),
+      };
+      eventListeners.get('alert')?.(mockAlert);
+    }, 10000);
 
     // Cleanup on unmount
     return () => {
-      if (socketConnection) {
-        socketConnection.disconnect();
-      }
+      clearInterval(sensorInterval);
+      clearInterval(alertInterval);
+      mockSocket.disconnect();
     };
   }, []);
 
