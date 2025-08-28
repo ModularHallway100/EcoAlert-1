@@ -43,9 +43,9 @@ export function ReportsGraphs({ data }: ReportsGraphsProps) {
   const handleExportCSV = () => {
     if (data.length === 0) return;
 
-    const headers = ["Time,AQI,pH,Turbidity (NTU),Noise (dB)"];
-    const rows = data.map(item => `${item.aqi},${item.ph},${item.turbidity},${item.noise}`);
-    const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
+    const headers = ["Time", "AQI", "pH", "Turbidity (NTU)", "Noise (dB)"];
+    const rows = data.map(item => [item.time, item.aqi, item.ph, item.turbidity, item.noise].join(','));
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join("\n");
     
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");

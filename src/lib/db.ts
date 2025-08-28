@@ -27,6 +27,7 @@ const STORAGE_KEYS = {
 
 // Initialize from localStorage
 function initializeFromStorage() {
+  if (typeof window === 'undefined') return; // Only run on client-side
   try {
     const profilesData = localStorage.getItem(STORAGE_KEYS.USER_PROFILES);
     if (profilesData) {
@@ -47,6 +48,7 @@ function initializeFromStorage() {
 
 // Save to localStorage
 function saveToStorage() {
+  if (typeof window === 'undefined') return; // Only run on client-side
   try {
     const profilesData: Record<string, UserProfileData> = {};
     memoryCache.forEach((data, id) => {
@@ -133,6 +135,7 @@ export const db = {
 
   // Clear all data (for testing/reset)
   clearAllData: async (): Promise<void> => {
+    if (typeof window === 'undefined') return; // Only run on client-side
     try {
       memoryCache.clear();
       activityCache.length = 0;
@@ -146,6 +149,7 @@ export const db = {
 
   // Get storage statistics
   getStorageStats: async (): Promise<{ profiles: number; activities: number; size: string }> => {
+    if (typeof window === 'undefined') return { profiles: 0, activities: 0, size: '0 Bytes' }; // Only run on client-side
     try {
       const profilesSize = new Blob([JSON.stringify(Object.fromEntries(memoryCache))]).size;
       const activitiesSize = new Blob([JSON.stringify(activityCache)]).size;

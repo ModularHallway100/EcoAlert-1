@@ -229,47 +229,37 @@ function generateHealthAwareFallbackTips(
   };
 }
 
-const healthAwarePollutionTipsFlow = ai.defineFlow(
-  {
-    name: 'healthAwarePollutionTipsFlow',
-    inputSchema: z.object({
+const healthAwarePollutionTipsPrompt = ai.definePrompt({
+  name: 'healthAwarePollutionTipsPrompt',
+  input: {
+    schema: z.object({
       ...PollutionReductionTipsInputSchema.shape,
-      healthProfile: z.any()
+      healthProfile: z.any(),
     }),
-    outputSchema: PollutionReductionTipsOutputSchema,
   },
-  async (input) => {
-    const { healthProfile, ...environmentalInput } = input;
-    
-    const healthPrompt = ai.definePrompt({
-      name: 'healthAwarePollutionTipsPrompt',
-      input: { schema: z.object({
-        ...PollutionReductionTipsInputSchema.shape,
-        healthProfile: z.any()
-      })},
-      output: { schema: PollutionReductionTipsOutputSchema },
-      prompt: `You are a health-focused environmental advisor providing personalized recommendations based on both environmental conditions and the user's health profile.
+  output: { schema: PollutionReductionTipsOutputSchema },
+  prompt: `You are a health-focused environmental advisor providing personalized recommendations based on both environmental conditions and the user's health profile.
 
 Environmental Data:
-- AQI: {{{aqi}}}
+- AQI: ${'{{aqi}}'}
 {{#if dominantPollutant}}
-- Dominant Pollutant: {{{dominantPollutant}}}
+- Dominant Pollutant: ${'{{dominantPollutant}}'}
 {{/if}}
 {{#if ph}}
-- Water pH Level: {{{ph}}}
+- Water pH Level: ${'{{ph}}'}
 {{/if}}
 {{#if turbidity}}
-- Water Turbidity: {{{turbidity}}} NTU
+- Water Turbidity: ${'{{turbidity}}'} NTU
 {{/if}}
 {{#if noise}}
-- Noise Level: {{{noise}}} dB
+- Noise Level: ${'{{noise}}'} dB
 {{/if}}
 
 User Health Profile:
-- Vulnerable: {{{healthProfile.vulnerable}}}
-- Respiratory Conditions: {{{healthProfile.respiratoryConditions}}}
-- Age Group: {{{healthProfile.ageGroup}}}
-- Activity Level: {{{healthProfile.activityLevel}}}
+- Vulnerable: ${'{{healthProfile.vulnerable}}'}
+- Respiratory Conditions: ${'{{healthProfile.respiratoryConditions}}'}
+- Age Group: ${'{{healthProfile.ageGroup}}'}
+- Activity Level: ${'{{healthProfile.activityLevel}}'}
 
 Generate health-aware environmental recommendations that consider both the current conditions and the user's specific health needs.
 
@@ -286,9 +276,19 @@ Focus on:
 - Practical accommodations for daily life
 
 Generate your response:`,
-    });
+});
 
-    const {output} = await healthPrompt(input);
+const healthAwarePollutionTipsFlow = ai.defineFlow(
+  {
+    name: 'healthAwarePollutionTipsFlow',
+    inputSchema: z.object({
+      ...PollutionReductionTipsInputSchema.shape,
+      healthProfile: z.any(),
+    }),
+    outputSchema: PollutionReductionTipsOutputSchema,
+  },
+  async (input) => {
+    const { output } = await healthAwarePollutionTipsPrompt(input);
     return output!;
   }
 );

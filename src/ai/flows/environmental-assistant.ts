@@ -138,45 +138,51 @@ function getHealthFallbackResponse(healthProfile: any, currentConditions: any): 
   return advice;
 }
 
+const healthEnvironmentalAdvicePrompt = ai.definePrompt({
+  name: 'healthEnvironmentalAdvicePrompt',
+  input: {
+    schema: z.object({
+      healthProfile: z.any(),
+      currentConditions: z.any(),
+      question: z.string(),
+    }),
+  },
+  output: { schema: z.string() },
+  prompt: `You are a health-focused environmental advisor. Provide personalized advice based on the user's health profile and current environmental conditions.
+
+User Health Profile:
+- Vulnerable: ${'{{healthProfile.vulnerable}}'}
+- Respiratory Conditions: ${'{{healthProfile.respiratoryConditions.join(", ") || "None"}}'}
+- Age Group: ${'{{healthProfile.ageGroup}}'}
+- Activity Level: ${'{{healthProfile.activityLevel}}'}
+
+Current Environmental Conditions:
+- AQI: ${'{{currentConditions.aqi}}'}
+- Dominant Pollutant: ${'{{currentConditions.dominantPollutant || "N/A"}}'}
+- Water pH: ${'{{currentConditions.ph || "N/A"}}'}
+- Noise Level: ${'{{currentConditions.noise || "N/A"}}'} dB
+
+User Question: ${'{{question}}'}
+
+Provide personalized, health-focused environmental advice:`,
+});
+
 const healthEnvironmentalAdviceFlow = ai.defineFlow(
   {
     name: 'healthEnvironmentalAdviceFlow',
     inputSchema: z.object({
       healthProfile: z.any(),
       currentConditions: z.any(),
-      question: z.string()
+      question: z.string(),
     }),
     outputSchema: z.string(),
   },
   async ({ healthProfile, currentConditions, question }) => {
-    const healthPrompt = ai.definePrompt({
-      name: 'healthEnvironmentalAdvicePrompt',
-      input: { schema: z.object({
-        healthProfile: z.any(),
-        currentConditions: z.any(),
-        question: z.string()
-      })},
-      output: { schema: z.string() },
-      prompt: `You are a health-focused environmental advisor. Provide personalized advice based on the user's health profile and current environmental conditions.
-
-User Health Profile:
-- Vulnerable: ${healthProfile.vulnerable}
-- Respiratory Conditions: ${healthProfile.respiratoryConditions.join(', ') || 'None'}
-- Age Group: ${healthProfile.ageGroup}
-- Activity Level: ${healthProfile.activityLevel}
-
-Current Environmental Conditions:
-- AQI: ${currentConditions.aqi}
-- Dominant Pollutant: ${currentConditions.dominantPollutant || 'N/A'}
-- Water pH: ${currentConditions.ph || 'N/A'}
-- Noise Level: ${currentConditions.noise || 'N/A'} dB
-
-User Question: ${question}
-
-Provide personalized, health-focused environmental advice:`,
+    const { output } = await healthEnvironmentalAdvicePrompt({
+      healthProfile,
+      currentConditions,
+      question,
     });
-
-    const {output} = await healthPrompt({ healthProfile, currentConditions, question });
     return output!;
   }
 );

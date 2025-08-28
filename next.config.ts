@@ -1,4 +1,5 @@
 import type {NextConfig} from 'next';
+import webpack from 'webpack';
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -46,12 +47,30 @@ const nextConfig: NextConfig = {
         perf_hooks: false,
         async_hooks: false,
         dns: false,
+        worker_threads: false,
+        util: false,
+        stream: false,
+        crypto: false,
+        http: false,
+        https: false,
       };
+
+      // Ignore node: imports for client-side bundle
+      config.plugins.push(new webpack.IgnorePlugin({ resourceRegExp: /^node:/ }));
     }
+
+    config.plugins.push(
+      new webpack.ProvidePlugin({
+        process: 'process/browser',
+        Buffer: ['buffer', 'Buffer'],
+      })
+    );
+    
     return config;
   },
   // Experimental features to help with module resolution
-  serverExternalPackages: ['genkit'],
+  serverExternalPackages: [],
+  transpilePackages: ['genkit', '@genkit-ai/googleai', '@genkit-ai/core'],
 };
 
 export default nextConfig;
