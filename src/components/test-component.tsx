@@ -1,17 +1,17 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const EmergencyCommandCenter = () => {
+const TestComponent = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Emergency Command Center</CardTitle>
+        <CardTitle>Test Component</CardTitle>
       </CardHeader>
       <CardContent>
-        <p>Emergency Command Center is loading...</p>
+        <p>This is a test component to check if the issue is with component rendering.</p>
       </CardContent>
     </Card>
   );
 };
 
-export default EmergencyCommandCenter;
+export default TestComponent;
