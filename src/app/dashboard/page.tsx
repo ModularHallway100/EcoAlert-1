@@ -168,11 +168,15 @@ export default function DashboardPage() {
 
         {/* Main Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
             <TabsTrigger value="alerts">Alerts</TabsTrigger>
             <TabsTrigger value="community">Community</TabsTrigger>
+            <TabsTrigger value="pollution-map">
+              <MapPin className="h-4 w-4 mr-2" />
+              Pollution Map
+            </TabsTrigger>
             <TabsTrigger value="command-center">
               <Shield className="h-4 w-4 mr-2" />
               Command Center
@@ -277,6 +281,43 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </TabsContent>
+          <TabsContent value="pollution-map" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-blue-500" />
+                  Pollution Heatmap
+                </CardTitle>
+                <CardDescription>
+                  View and analyze pollution levels across different areas with interactive heatmaps.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div className="flex gap-2">
+                      <Button onClick={() => window.location.href = '/pollution-map'} size="sm">
+                        View Full Map
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        Export Data
+                      </Button>
+                    </div>
+                    <Badge variant="outline">Real-time Updates</Badge>
+                  </div>
+                  
+                  <div className="h-96 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+                    <div className="text-center">
+                      <MapPin className="h-12 w-12 mx-auto text-gray-400 mb-2" />
+                      <p className="text-gray-500 mb-2">Pollution Heatmap Preview</p>
+                      <p className="text-sm text-gray-400">Click "View Full Map" for interactive features</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
           <TabsContent value="command-center" className="space-y-6">
             <EmergencyCommandCenter />
           </TabsContent>
