@@ -1,25 +1,9 @@
 import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
-
-// Check if user is authenticated and redirect accordingly
-async function checkAuth() {
-  // const cookieStore = await cookies();
-  // const token = cookieStore.get('auth-token')?.value;
-  
-  // if (!token) {
-  //   // Redirect to onboarding for new users
-  //   redirect('/onboarding');
-  // }
-  
-  // For now, redirect to dashboard
-  redirect('/dashboard');
-}
 
 export default function Home() {
-  // This will redirect immediately
-  checkAuth();
-  
-  return null;
+  // Redirect to sign-in page for all users
+  // The middleware will handle authentication checks
+  redirect('/sign-in');
 }
 
 // Generate static params for SEO

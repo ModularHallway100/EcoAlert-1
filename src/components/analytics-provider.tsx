@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useAuth } from './auth-provider';
+import { useUser } from '@clerk/nextjs';
 
 interface AnalyticsContextType {
   trackEvent: (event: string, properties?: Record<string, any>) => void;
@@ -19,7 +19,7 @@ interface AnalyticsProviderProps {
 }
 
 export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isSignedIn } = useUser();
   const [analyticsData, setAnalyticsData] = useState<any>(null);
 
   // Initialize analytics on mount
@@ -37,7 +37,7 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
     // Get user context
     const userContext = {
       userId: user?.id,
-      isAuthenticated: isAuthenticated,
+      isAuthenticated: isSignedIn,
       // Add other relevant user properties
     };
 

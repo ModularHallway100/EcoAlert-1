@@ -1,21 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { auth } from '@clerk/nextjs';
 
+// Mock implementation - in a real app, this would call the Convex backend
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId') || 'anonymous';
+    const { userId } = auth();
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    const profile = await db.getUserProfile(userId);
-
+    // In a real implementation, this would fetch from Convex
+    // const userProfile = await convex.query(getUserByClerkId, { clerkId: userId });
+    
     return NextResponse.json({
-      success: true,
-      data: profile || null,
+      id: userId,
+      email: 'user@example.com',
+      name: 'John Doe',
+      subscriptionTier: 'pro',
+      subscriptionStatus: 'active',
     });
   } catch (error) {
     console.error('Error fetching user profile:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch user profile' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -23,58 +31,22 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id') || 'anonymous';
-    const updates = await request.json();
-
-    // Get current profile
-    const currentProfile = await db.getUserProfile(userId);
+    const { userId } = auth();
     
-    // Merge updates with current profile
-    const updatedProfile = {
-      id: userId,
-      ...(currentProfile || {}),
-      ...updates,
-      lastUpdated: new Date().toISOString(),
-    };
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    await db.saveUserProfile(userId, updatedProfile);
-
-    return NextResponse.json({
-      success: true,
-      data: updatedProfile,
-    });
+    const body = await request.json();
+    
+    // In a real implementation, this would update in Convex
+    // await convex.mutation(upsertUser, { clerkId: userId, ...body });
+    
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error updating user profile:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to update user profile' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function PUT(request: NextRequest) {
-  try {
-    const userId = request.headers.get('x-user-id') || 'anonymous';
-    const profileData = await request.json();
-
-    // Validate required fields
-    if (!profileData.basicInfo) {
-      return NextResponse.json(
-        { success: false, error: 'Basic info is required' },
-        { status: 400 }
-      );
-    }
-
-    await db.saveUserProfile(userId, profileData);
-
-    return NextResponse.json({
-      success: true,
-      data: profileData,
-    });
-  } catch (error) {
-    console.error('Error saving user profile:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to save user profile' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
