@@ -5,11 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  MapPin, 
-  Activity, 
-  TrendingUp, 
-  AlertTriangle, 
+import {
+  MapPin,
+  Activity,
+  TrendingUp,
+  AlertTriangle,
   Download,
   RefreshCw,
   Calendar,
@@ -20,13 +20,30 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTrackFeature } from '@/components/analytics-provider';
-import PollutionHeatmap from '@/components/pollution-heatmap';
-import { 
-  PollutionDataPoint, 
+import {
+  PollutionDataPoint,
   PollutionHistory,
   MapSettings,
   DEFAULT_MAP_SETTINGS
 } from '@/lib/pollution-types';
+
+// Dynamically import PollutionHeatmap only on client side
+const PollutionHeatmap = dynamic(
+  () => import('@/components/pollution-heatmap'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[700px] flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-2"></div>
+          <p className="text-gray-600 dark:text-gray-300">Loading map...</p>
+        </div>
+      </div>
+    )
+  }
+);
+
+import dynamic from 'next/dynamic';
 
 // Mock data for pollution history
 const generateMockHistory = (): PollutionHistory[] => {

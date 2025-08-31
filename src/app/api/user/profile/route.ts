@@ -1,20 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs';
 
 // Mock implementation - in a real app, this would call the Convex backend
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = auth();
-    
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // In a real implementation, this would fetch from Convex
-    // const userProfile = await convex.query(getUserByClerkId, { clerkId: userId });
+    // For development, mock user data
+    const mockUserId = 'user_123';
     
     return NextResponse.json({
-      id: userId,
+      id: mockUserId,
       email: 'user@example.com',
       name: 'John Doe',
       subscriptionTier: 'pro',
@@ -31,12 +24,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = auth();
-    
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const body = await request.json();
     
     // In a real implementation, this would update in Convex

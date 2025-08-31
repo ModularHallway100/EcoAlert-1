@@ -27,7 +27,8 @@ import {
   BookOpen,
   Video,
   FileText,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Hash
 } from 'lucide-react';
 
 interface SocialPost {

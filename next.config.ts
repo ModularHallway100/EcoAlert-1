@@ -1,5 +1,4 @@
 import type {NextConfig} from 'next';
-import webpack from 'webpack';
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -54,16 +53,21 @@ const nextConfig: NextConfig = {
         http: false,
         https: false,
       };
-
-      // Ignore node: imports for client-side bundle
-      config.plugins.push(new webpack.IgnorePlugin({ resourceRegExp: /^node:/ }));
     }
 
     config.plugins.push(
-      new webpack.ProvidePlugin({
-        process: 'process/browser',
-        Buffer: ['buffer', 'Buffer'],
-      })
+      // @ts-ignore
+      {
+        apply(compiler: any) {
+          compiler.hooks.compilation.tap('ProvidePlugin', (compilation: any) => {
+            const { ProvidePlugin } = require('webpack');
+            new ProvidePlugin({
+              process: 'process/browser',
+              Buffer: ['buffer', 'Buffer'],
+            }).apply(compiler);
+          });
+        }
+      }
     );
     
     return config;
@@ -71,6 +75,17 @@ const nextConfig: NextConfig = {
   // Experimental features to help with module resolution
   serverExternalPackages: [],
   transpilePackages: ['genkit', '@genkit-ai/googleai', '@genkit-ai/core'],
+  // Enable Turbopack for faster development builds
+  experimental: {
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
+  },
 };
 
 export default nextConfig;

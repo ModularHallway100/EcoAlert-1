@@ -6,6 +6,7 @@ import { Inter } from 'next/font/google';
 import { Providers } from '@/components/clerk-provider';
 import { SocketProvider } from '@/components/socket-provider';
 import { AnalyticsProvider } from '@/components/analytics-provider';
+import { AuthProvider } from '@/components/auth-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -85,12 +86,14 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Providers>
-            <SocketProvider>
-              <AnalyticsProvider>
-                {children}
-                <Toaster />
-              </AnalyticsProvider>
-            </SocketProvider>
+            <AuthProvider>
+              <SocketProvider>
+                <AnalyticsProvider>
+                  {children}
+                  <Toaster />
+                </AnalyticsProvider>
+              </SocketProvider>
+            </AuthProvider>
           </Providers>
         </ThemeProvider>
       </body>
