@@ -37,7 +37,6 @@ import {
   POLLUTANT_COLORS,
   MapSettings 
 } from '@/lib/pollution-types';
-import 'leaflet/dist/leaflet.css';
 import '@/styles/leaflet.css';
 
 interface PollutionHeatmapProps {

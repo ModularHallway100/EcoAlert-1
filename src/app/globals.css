@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Leaflet CSS */
-@import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
-
 @layer base {
   :root {
     --background: 210 40% 98%;
@@ -92,32 +89,6 @@
 }
 
 /* Custom styles for pollution heatmap components */
-.leaflet-container {
-  font-family: inherit;
-}
-
-.leaflet-container a {
-  color: inherit;
-}
-
-/* Fix for marker icons not displaying */
-.leaflet-marker-icon {
-  background: none !important;
-  border: none !important;
-}
-
-/* Custom popup styles */
-.leaflet-popup-content-wrapper {
-  border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-.leaflet-popup-content {
-  margin: 15px 20px;
-  line-height: 1.5;
-}
-
-/* Responsive map container */
 .pollution-map-container {
   position: relative;
   width: 100%;
