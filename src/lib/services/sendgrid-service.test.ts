@@ -27,11 +27,14 @@ function createMockFetch(responses: any[]) {
       status: response.status,
       statusText: response.statusText,
       headers: new Headers(response.headers || {}),
-      json: () => Promise.resolve(response.json || {})
+      json: () => Promise.resolve(response.json || {}),
+      text: () => Promise.resolve(JSON.stringify(response.json || {})),
+      blob: () => Promise.resolve(new Blob([JSON.stringify(response.json || {})])),
+      arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+      clone: function() { return this; }
     });
   } as any;
 }
-
 // Test suite for SendGridService
 function runTests() {
   console.log('Running SendGridService tests...\n');
@@ -43,7 +46,7 @@ function runTests() {
   // Setup before each test
   function beforeEach() {
     // Store original fetch
-    originalFetch = global.fetch;
+    originalFetch = (global as any).fetch;
     
     mockConfig = {
       id: 'test-sendgrid',
@@ -78,13 +81,13 @@ function runTests() {
     try {
       // Mock successful response
       global.fetch = createMockFetch([{
-        ok: true,
-        headers: {
-          'X-RateLimit-Limit': '100',
-          'X-RateLimit-Remaining': '99',
-          'X-RateLimit-Reset': (Math.floor(Date.now() / 1000) + 60).toString()
-        },
-        json: { username: 'testuser' }
+          ok: true,
+          headers: {
+            'X-RateLimit-Limit': '100',
+            'X-RateLimit-Remaining': '99',
+            'X-RateLimit-Reset': (Math.floor(Date.now() / 1000) + 60).toString()
+          },
+          json: { username: 'testuser' }
       }]);
 
       // Make 5 requests in quick succession (reduced for faster testing)
@@ -230,14 +233,24 @@ function runTests() {
     
     try {
       // Test with an invalid API key
+      // Test with an invalid API key
       const invalidConfig = { ...mockConfig };
       invalidConfig.apiKeys.SENDGRID_API_KEY = 'invalid-key';
+      
+      // Mock an authentication error response
+      global.fetch = createMockFetch([{
+        ok: false,
+        status: 401,
+        statusText: 'Unauthorized',
+        headers: {},
+        json: { errors: [{ message: 'Authentication error' }] }
+      }]);
       
       const invalidService = new SendGridService(invalidConfig);
       const result = await invalidService.validate();
       
-      if (!result.success && result.error && result.error.includes('invalid or not configured')) {
-        console.log('✓ API errors handled gracefully');
+      if (!result.success && result.error && result.error.includes('Authentication error')) {
+        console.log('✓ Error handling works correctly');
       } else {
         console.log('✗ Error handling test failed:', result);
       }

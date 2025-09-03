@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { getSubscriptionPlan } from "../src/lib/subscription";
 
 // Get user profile by Clerk ID
 export const getUserByClerkId = query({
@@ -116,8 +117,6 @@ export const checkFeatureAccess = query({
     const user = await ctx.db.get(args.userId);
     if (!user) return false;
 
-    // Import subscription features from our library
-    const { getSubscriptionPlan } = require("../src/lib/subscription");
     const plan = getSubscriptionPlan(user.subscriptionTier);
     
     if (!plan) return false;

@@ -17,6 +17,7 @@ export class SendGridService implements IntegrationService {
     window: number;
     reset: Date;
   } | null = null;
+  private rateLimiterLock: Promise<void> = Promise.resolve();
 
   constructor(config: IntegrationConfig) {
     this.config = config;
@@ -50,7 +51,7 @@ export class SendGridService implements IntegrationService {
     }
   }
 
-  private updateRateLimitFromHeaders(headers: Headers): void {
+  private async updateRateLimitFromHeaders(headers: Headers): Promise<void> {
     // Extract X-RateLimit-* headers from SendGrid response
     // SendGrid uses different header names: X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset
     const xRateLimitLimit = headers.get('X-RateLimit-Limit');
@@ -70,11 +71,28 @@ export class SendGridService implements IntegrationService {
             reset: new Date(resetTime)
           };
 
-          // Create a new rate limiter with dynamic values
-          // Import RateLimiter class properly
-          import('../integrations').then(module => {
-            this.rateLimiter = new module.RateLimiter(requests, this.dynamicRateLimit!.window);
-          }).catch(error => {
+          console.log(`SendGrid: Updated rate limit from headers: ${requests} requests, ${remaining} remaining, reset at ${new Date(resetTime).toISOString()}`);
+          
+          // Create a new rate limiter with dynamic values using lock mechanism
+          await this.updateRateLimiterWithLock(requests, this.dynamicRateLimit.window, remaining, resetTime);
+        }
+      } catch (error) {
+        console.error('SendGrid: Failed to parse rate limit headers:', error);
+      }
+    }
+  }
+
+  private async updateRateLimiterWithLock(requests: number, windowMs: number, remaining: number, resetTime: number): Promise<void> {
+    // Create a new promise for this specific update
+    const updatePromise = new Promise<void>((resolve) => {
+      // Chain the lock to ensure sequential updates
+      this.rateLimiterLock = this.rateLimiterLock
+        .then(async () => {
+          try {
+            // Import RateLimiter class properly
+            const module = await import('../integrations');
+            this.rateLimiter = new module.RateLimiter(requests, windowMs);
+          } catch (error) {
             console.error('SendGrid: Failed to import RateLimiter for dynamic update:', error);
             // Fallback to simple check function if import fails
             this.rateLimiter = {
@@ -84,14 +102,14 @@ export class SendGridService implements IntegrationService {
                 reset: new Date(resetTime)
               })
             };
-          });
+          } finally {
+            resolve();
+          }
+        });
+    });
 
-          console.log(`SendGrid: Updated rate limit from headers: ${requests} requests, ${remaining} remaining, reset at ${new Date(resetTime).toISOString()}`);
-        }
-      } catch (error) {
-        console.error('SendGrid: Failed to parse rate limit headers:', error);
-      }
-    }
+    // Wait for the update to complete
+    await updatePromise;
   }
 
   async initialize(config: IntegrationConfig): Promise<IntegrationResponse> {
@@ -128,14 +146,14 @@ export class SendGridService implements IntegrationService {
       }
 
       // Validate API key format (basic check)
-      // SendGrid API keys are typically long and don't necessarily start with 'SG.'
-      if (apiKey.length < 15) {
+      // SendGrid API keys start with 'SG.' and are exactly 69 characters
+      if (!apiKey.startsWith('SG.') || apiKey.length !== 69) {
         return {
           success: false,
-          error: 'Invalid SendGrid API key format'
+          error: 'Invalid SendGrid API key format. Expected format: SG.{part1}.{part2} (69 chars)'
         };
       }
-
+      
       // Test the API key with a simple call to verify access
       const url = `${API_BASE_URL}/user/profile`;
       
@@ -220,9 +238,8 @@ export class SendGridService implements IntegrationService {
         text: payload.message,
         html: `<p>${payload.message}</p>`,
         // Add any additional SendGrid-specific settings
-        ...this.config.settings.emailOptions
+        ...(this.config.settings?.emailOptions || {})
       };
-
       const url = `${API_BASE_URL}/mail/send`;
       
       let response: Response;
@@ -247,7 +264,7 @@ export class SendGridService implements IntegrationService {
       }
 
       // Update rate limit from response headers
-      this.updateRateLimitFromHeaders(response.headers);
+      await this.updateRateLimitFromHeaders(response.headers);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -388,7 +405,7 @@ export class SendGridService implements IntegrationService {
   async validate(): Promise<IntegrationResponse> {
     try {
       // Check if we have required configuration
-      if (!this.config.apiKeys.SENDGRID_API_KEY) {
+      if (!this.config.apiKeys?.SENDGRID_API_KEY) {
         return {
           success: false,
           error: 'SendGrid API key is missing'
@@ -405,7 +422,7 @@ export class SendGridService implements IntegrationService {
       }
 
       // Check if from email is configured
-      if (!this.config.settings.fromEmail) {
+      if (!this.config.settings?.fromEmail) {
         return {
           success: false,
           error: 'From email address is required in SendGrid settings'
@@ -465,7 +482,7 @@ export class SendGridService implements IntegrationService {
       }
 
       // Update rate limit from response headers
-      this.updateRateLimitFromHeaders(response.headers);
+      await this.updateRateLimitFromHeaders(response.headers);
 
       let data;
       try {

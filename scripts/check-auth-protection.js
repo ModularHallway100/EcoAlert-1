@@ -14,16 +14,14 @@ const apiDirectories = [
 ];
 
 // Files that should be excluded from checks
+// Files that should be excluded from checks
 const excludedFiles = [
   'middleware.ts',
-  'route.ts' // We'll check this one specifically
 ];
-
 // Auth protection patterns to look for
 const authProtectionPatterns = [
   /auth\(\)\.protect\(\)/,
-  /auth\(\)\.requireAuth\(\)/,
-  /auth\(\)\.mustBeAuthenticated\(\)/,
+  /clerkMiddleware/,
 ];
 
 console.log('🔍 Checking for missing auth().protect() calls...\n');

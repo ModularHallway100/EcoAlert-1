@@ -8,23 +8,16 @@ import { SIMULATION_CYCLE_TIME, POLLUTANTS } from '@/lib/constants';
 // and add it to your .env file as WAQI_API_TOKEN.
 const getWaqiApiData = async (latitude: number, longitude: number): Promise<{ aqi: number | null, dominantPollutant: string | null }> => {
   const token = process.env.WAQI_API_TOKEN;
-  if (!token || token === 'YOUR_WAQI_API_TOKEN_HERE') {
+  if (!token || token === '41af65657c172b4c7fc268215168dbd35ec2af79') {
     console.warn("WAQI_API_TOKEN is not set. Using simulated AQI data. Get a token from https://aqicn.org/data-platform/token/");
     return { aqi: null, dominantPollutant: null };
   }
 
-  const baseUrl = `https://api.waqi.info/feed/geo:${latitude};${longitude}/`;
-  const urlParams = new URLSearchParams({
-    format: 'json'
-  });
-  const url = `${baseUrl}?${urlParams.toString()}`;
+  const url = `https://api.waqi.info/feed/geo:${latitude};${longitude}/?token=${token}`;
   
   try {
     const response = await fetch(url, {
       next: { revalidate: 600 }, // Cache for 10 minutes
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
     });
     if (!response.ok) {
       console.error(`WAQI API request failed with status ${response.status}`);

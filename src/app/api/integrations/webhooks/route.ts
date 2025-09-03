@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyWebhookSignature } from '@/lib/integrations';
 import type { WebhookPayload } from '@/lib/integrations';
 
-// In-memory storage for webhook secrets
+// TODO: Replace with persistent storage (database, Redis, or environment variables)
+// For now, use a database or external secret management service
 const webhookSecrets = new Map<string, string>();
 
 export async function POST(request: NextRequest) {
@@ -76,12 +77,7 @@ export async function POST(request: NextRequest) {
 // Store webhook secret for an integration
 export async function PUT(request: NextRequest) {
   try {
-    // Add authentication check here
-    // const isAuthorized = await verifyApiKey(request);
-    // if (!isAuthorized) {
-    //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    // }
-
+    // Parse request body
     const body = await request.json();
     const { integrationId, secret } = body;
 

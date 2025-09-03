@@ -23,10 +23,6 @@ This guide walks you through integrating Clerk authentication with Convex backen
 
 ## Step 2: Get Your Clerk Webhook Secret and Configure Webhook Endpoint
 
-1. **Create the Webhook Endpoint URL**:
-   - Your webhook endpoint URL will be: `https://yourdomain.com/api/auth/webhook`
-   - If running locally: `http://localhost:3000/api/auth/webhook`
-
 2. **Configure Webhook in Clerk Dashboard**:
    - Go to your [Clerk Dashboard](https://dashboard.clerk.dev)
    - Navigate to **Webhooks** in the left sidebar
@@ -36,8 +32,10 @@ This guide walks you through integrating Clerk authentication with Convex backen
    - Click **Create**
    - Your webhook secret will be displayed - copy this value
    - Add it to your `.env` file as `CLERK_WEBHOOK_SECRET`
-
-## Step 3: Create a JWT Template for Convex
+   - In your `/api/auth/webhook` handler:
+     - Enforce `POST` only.
+     - Verify `svix-id`, `svix-timestamp`, and `svix-signature` using the Clerk SDK (or `svix`) before processing.
+     - Return a non-2xx response on verification failure.## Step 3: Create a JWT Template for Convex
 
 1. In your Clerk Dashboard, go to **JWT Templates**
 2. Click **New template** and choose **Convex** from the list

@@ -1,8 +1,12 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { Webhook } from "svix";
 
 const clerkWebhookSecret = process.env.CLERK_WEBHOOK_SECRET;
 
+if (!clerkWebhookSecret) {
+  throw new Error("CLERK_WEBHOOK_SECRET environment variable is required");
+}
 interface UserCreatedEvent {
   data: {
     id: string;
@@ -45,7 +49,6 @@ interface UserDeletedEvent {
 
 export async function POST(request: Request) {
   try {
-    // Verify webhook signature
     const headerPayload = await headers();
     const svix_id = headerPayload.get("svix-id");
     const svix_timestamp = headerPayload.get("svix-timestamp");
@@ -55,22 +58,37 @@ export async function POST(request: Request) {
       return new Response("Error: Missing Svix headers or webhook secret", { status: 400 });
     }
 
-    const payload = await request.json();
+    const payload = await request.text();
+    
+    // Verify webhook signature
+    const wh = new Webhook(clerkWebhookSecret);
+    let evt: UserCreatedEvent | UserUpdatedEvent | UserDeletedEvent;
+    
+    try {
+      evt = wh.verify(payload, {
+        "svix-id": svix_id,
+        "svix-timestamp": svix_timestamp,
+        "svix-signature": svix_signature,
+      }) as UserCreatedEvent | UserUpdatedEvent | UserDeletedEvent;
+    } catch (err) {
+      console.error("Error verifying webhook:", err);
+      return new Response("Error: Invalid signature", { status: 400 });
+    }
 
-    // For now, we'll just log the event and process it
-    // In a production environment, you would properly verify the signature
-    console.log("Webhook received:", payload);
-
-    const evt = payload as UserCreatedEvent | UserUpdatedEvent | UserDeletedEvent;
+    console.log("Webhook received:", evt);
 
     console.log("Webhook event received:", evt.type);
 
-    // Handle different event types
     if (evt.type === "user.created" || evt.type === "user.updated") {
       const user = evt.data;
       const primaryEmail = user.email_addresses.find(
         (email) => email.id === user.primary_email_address_id
-      )?.email_address || "";
+      )?.email_address;
+      
+      if (!primaryEmail) {
+        console.error("Primary email not found for user:", user.id);
+        return new Response("Error: Primary email not found", { status: 400 });
+      }
 
       const userData = {
         clerkId: user.id,

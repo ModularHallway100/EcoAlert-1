@@ -1,4 +1,4 @@
-import type { Coordinates } from './types';
+import * as crypto from 'crypto';
 
 // Supported third-party integrations
 export type IntegrationType = 
@@ -21,7 +21,7 @@ export type IntegrationType =
   | 'philips_hue' // Smart lighting
   | 'samsung_smartthings' // Smart home automation
   | 'amazon_alexa' // Voice assistant
-  | 'google_home' // Voice assistant;
+  | 'google_home' // Voice assistant
 
 // Integration configuration interface
 export interface IntegrationConfig {
@@ -67,7 +67,7 @@ export interface WebhookPayload {
 
 // Weather data from OpenWeatherMap
 export interface WeatherData {
-  location: Coordinates;
+  location: string;
   city: string;
   country: string;
   temperature: number;
@@ -186,7 +186,6 @@ export const verifyWebhookSignature = (
   secret: string
 ): boolean => {
   try {
-    const crypto = require('crypto');
     const expectedSignature = crypto
       .createHmac('sha256', secret)
       .update(JSON.stringify(payload))

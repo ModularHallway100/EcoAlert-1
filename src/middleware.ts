@@ -1,4 +1,4 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher, auth } from "@clerk/nextjs/server";
 
 const publicRoutes = createRouteMatcher([
   "/",
@@ -26,7 +26,8 @@ const publicRoutes = createRouteMatcher([
 
 export default clerkMiddleware((auth, req) => {
   if (!publicRoutes(req)) {
-    auth();
+    // Try using the imported auth function instead of the parameter
+    auth.protect();
   }
 });
 

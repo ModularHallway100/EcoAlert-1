@@ -30,54 +30,62 @@ export function useAuthWithConvex(): AuthUser {
 
   useEffect(() => {
     if (isLoaded && isSignedIn && userId) {
+      let isCancelled = false;
+      
       const syncUserWithBackend = async () => {
         try {
-          const token = await getToken();
+          // Retry logic for transient failures
+          let retryCount = 0;
+          const maxRetries = 3;
           
-          // Get user info from Clerk
-          const clerkResponse = await fetch(`https://api.clerk.dev/v1/users/${userId}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          
-          if (!clerkResponse.ok) {
-            throw new Error('Failed to fetch user info');
-          }
-          
-          const clerkUser = await clerkResponse.json();
-          
-          // Sync user data with our backend
-          const syncResponse = await fetch('/api/auth/sync', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              clerkId: userId,
-              email: clerkUser.email_addresses[0]?.email_address || "",
-              name: `${clerkUser.first_name || ""} ${clerkUser.last_name || ""}`.trim() || clerkUser.username,
-              imageUrl: clerkUser.image_url,
-              subscriptionTier: "free",
-              subscriptionStatus: "active",
-              currentPeriodStart: Date.now(),
-              currentPeriodEnd: Date.now() + (30 * 24 * 60 * 60 * 1000),
-              trialEnd: Date.now() + (14 * 24 * 60 * 60 * 1000),
-            }),
-          });
-          
-          if (!syncResponse.ok) {
-            console.error('Failed to sync user data');
-          } else {
-            console.log('User data synced successfully');
+          while (retryCount < maxRetries && !isCancelled) {
+            try {
+              // Sync user data with our backend (server will fetch Clerk data)
+              const syncResponse = await fetch('/api/auth/sync', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${await getToken()}`,
+                },
+                body: JSON.stringify({
+                  clerkId: userId,
+                }),
+              });
+              
+              if (!syncResponse.ok) {
+                throw new Error(`Failed to sync user data: ${syncResponse.status}`);
+              }
+              
+              const result = await syncResponse.json();
+              console.log('User data synced successfully:', result);
+              break; // Success, exit retry loop
+              
+            } catch (error) {
+              retryCount++;
+              if (retryCount >= maxRetries) {
+                console.error("Error syncing user with backend after retries:", error);
+                break;
+              }
+              
+              // Exponential backoff
+              await new Promise(resolve =>
+                setTimeout(resolve, 1000 * Math.pow(2, retryCount - 1))
+              );
+            }
           }
         } catch (error) {
-          console.error("Error syncing user with backend:", error);
+          if (!isCancelled) {
+            console.error("Error syncing user with backend:", error);
+          }
         }
       };
 
       syncUserWithBackend();
+      
+      // Cleanup function to cancel in-flight sync
+      return () => {
+        isCancelled = true;
+      };
     }
   }, [isLoaded, isSignedIn, userId, getToken]);
 

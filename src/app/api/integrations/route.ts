@@ -4,7 +4,149 @@ import type { IntegrationConfig, IntegrationType, IntegrationResponse } from '@/
 import { validateIntegration } from '@/lib/integrations';
 import { INTEGRATION_SERVICES as SERVICE_REGISTRY } from '@/lib/services';
 
-// In-memory storage for integration configurations
+// Service Manager for managing service instances
+class ServiceManager {
+  private services = new Map<string, any>();
+  private connections = new Map<string, any>();
+  
+  /**
+   * Get or create a service instance
+   */
+  getService(type: IntegrationType, config: IntegrationConfig): any {
+    const key = `${type}-${config.id}`;
+    
+    if (!this.services.has(key)) {
+      const ServiceClass = SERVICE_REGISTRY[type];
+      if (!ServiceClass) {
+        throw new Error(`Service class not found for type: ${type}`);
+      }
+      
+      const service = new ServiceClass(config);
+      this.services.set(key, service);
+      
+      // Initialize the service
+      this.initializeService(service, config);
+    }
+    
+    return this.services.get(key);
+  }
+  
+  /**
+   * Initialize a service and store connection
+   */
+  private async initializeService(service: any, config: IntegrationConfig): Promise<void> {
+    try {
+      const initResult = await service.initialize(config);
+      if (!initResult.success) {
+        throw new Error(`Service initialization failed: ${initResult.error}`);
+      }
+      
+      // Store connection if available
+      if (service.connection) {
+        this.connections.set(config.id, service.connection);
+      }
+    } catch (error) {
+      console.error(`Failed to initialize service for ${config.id}:`, error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Get connection for an integration
+   */
+  getConnection(id: string): any {
+    return this.connections.get(id);
+  }
+  
+  /**
+   * Update service configuration
+   */
+  async updateService(type: IntegrationType, config: IntegrationConfig, updates: Partial<IntegrationConfig>): Promise<void> {
+    const key = `${type}-${config.id}`;
+    const service = this.services.get(key);
+    
+    if (service) {
+      if (updates.apiKeys) {
+        // Re-authenticate with new API keys
+        const authResult = await service.authenticate(updates.apiKeys);
+        if (!authResult.success) {
+          throw new Error(`Authentication failed: ${authResult.error}`);
+        }
+      }
+      
+      // Update service configuration if method exists
+      if (service.updateSettings) {
+        await service.updateSettings(updates.settings || {});
+      }
+    }
+  }
+  
+  /**
+   * Disconnect and cleanup service
+   */
+  async disconnectService(type: IntegrationType, config: IntegrationConfig): Promise<void> {
+    const key = `${type}-${config.id}`;
+    const service = this.services.get(key);
+    
+    if (service) {
+      try {
+        if (service.disconnect) {
+          await service.disconnect();
+        }
+        
+        // Close connection if available
+        const connection = this.connections.get(config.id);
+        if (connection && connection.end) {
+          connection.end();
+        }
+      } catch (error) {
+        console.error(`Failed to disconnect service for ${config.id}:`, error);
+        // Continue with cleanup even if disconnect fails
+      } finally {
+        // Remove from registries
+        this.services.delete(key);
+        this.connections.delete(config.id);
+      }
+    }
+  }
+  
+  /**
+   * Cleanup all services (for server shutdown)
+   */
+  async cleanupAll(): Promise<void> {
+    const disconnectPromises: Promise<void>[] = [];
+    
+    for (const [key, service] of this.services.entries()) {
+      try {
+        if (service.disconnect) {
+          disconnectPromises.push(service.disconnect());
+        }
+        
+        // Close connection if available
+        const configId = key.split('-')[1];
+        const connection = this.connections.get(configId);
+        if (connection && connection.end) {
+          connection.end();
+        }
+      } catch (error) {
+        console.error(`Failed to disconnect service ${key}:`, error);
+      }
+    }
+    
+    // Wait for all disconnect operations to complete
+    await Promise.all(disconnectPromises);
+    
+    // Clear registries
+    this.services.clear();
+    this.connections.clear();
+  }
+}
+
+// Global service manager instance
+const serviceManager = new ServiceManager();
+
+// TODO: Replace with persistent storage (database, file-based, or external service)
+// For now, use in-memory storage which will be lost on server restart
 const integrationsStorage = new Map<string, IntegrationConfig>();
 
 export async function GET(request: NextRequest) {
@@ -35,7 +177,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: false,
       error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: process.env.NODE_ENV === 'development'
+        ? (error instanceof Error ? error.message : 'Unknown error')
+        : 'An unexpected error occurred'
     }, { status: 500 });
   }
 }
@@ -92,11 +236,14 @@ export async function POST(request: NextRequest) {
     // Store integration
     integrationsStorage.set(id, config);
 
-    // Initialize the integration service
-    const service = new ServiceClass(config);
-    const initResult = await service.initialize(config);
-
-    if (!initResult.success) {
+    try {
+      // Use service manager to initialize
+      serviceManager.getService(type, config);
+      
+      // Mark as active if initialization succeeded
+      config.status = 'active';
+      integrationsStorage.set(id, config);
+    } catch (initError) {
       // Mark as error if initialization failed
       config.status = 'error';
       integrationsStorage.set(id, config);
@@ -104,13 +251,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: false,
         error: 'Failed to initialize integration',
-        details: initResult.error
+        details: initError instanceof Error ? initError.message : 'Unknown error'
       }, { status: 400 });
     }
-
-    // Mark as active if initialization succeeded
-    config.status = 'active';
-    integrationsStorage.set(id, config);
 
     return NextResponse.json({
       success: true,
@@ -129,7 +272,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: false,
       error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: process.env.NODE_ENV === 'development'
+        ? (error instanceof Error ? error.message : 'Unknown error')
+        : 'An unexpected error occurred'
     }, { status: 500 });
   }
 }
@@ -169,24 +314,18 @@ export async function PUT(request: NextRequest) {
     const updatedConfig = { ...existing, ...updates };
     integrationsStorage.set(id, updatedConfig);
 
-    // If API keys are being updated, re-authenticate
-    if (updates.apiKeys) {
-      const ServiceClass = SERVICE_REGISTRY[existing.type];
-      if (ServiceClass) {
-        const service = new ServiceClass(updatedConfig);
-        const authResult = await service.authenticate(updates.apiKeys);
-        
-        if (!authResult.success) {
-          updatedConfig.status = 'error';
-          integrationsStorage.set(id, updatedConfig);
-          
-          return NextResponse.json({
-            success: false,
-            error: 'Authentication failed with new API keys',
-            details: authResult.error
-          }, { status: 400 });
-        }
-      }
+    try {
+      // Use service manager to update
+      await serviceManager.updateService(existing.type, existing, updates);
+    } catch (updateError) {
+      updatedConfig.status = 'error';
+      integrationsStorage.set(id, updatedConfig);
+      
+      return NextResponse.json({
+        success: false,
+        error: 'Failed to update integration',
+        details: updateError instanceof Error ? updateError.message : 'Unknown error'
+      }, { status: 400 });
     }
 
     return NextResponse.json({
@@ -206,7 +345,9 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({
       success: false,
       error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: process.env.NODE_ENV === 'development'
+        ? (error instanceof Error ? error.message : 'Unknown error')
+        : 'An unexpected error occurred'
     }, { status: 500 });
   }
 }
@@ -232,15 +373,12 @@ export async function DELETE(request: NextRequest) {
       }, { status: 404 });
     }
 
-    const ServiceClass = SERVICE_REGISTRY[existing.type];
-    if (ServiceClass) {
-      const service = new ServiceClass(existing);
-      try {
-        await service.disconnect();
-      } catch (disconnectError) {
-        console.error(`Failed to disconnect integration ${id}:`, disconnectError);
-        // Continue with deletion even if disconnect fails, but log the error
-      }
+    try {
+      // Use service manager to disconnect
+      await serviceManager.disconnectService(existing.type, existing);
+    } catch (disconnectError) {
+      console.error(`Failed to disconnect integration ${id}:`, disconnectError);
+      // Continue with deletion even if disconnect fails, but log the error
     }
 
     // Remove from storage
@@ -256,7 +394,24 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({
       success: false,
       error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: process.env.NODE_ENV === 'development'
+        ? (error instanceof Error ? error.message : 'Unknown error')
+        : 'An unexpected error occurred'
     }, { status: 500 });
   }
+}
+
+// Handle server shutdown cleanup
+if (typeof process !== 'undefined') {
+  process.on('SIGTERM', async () => {
+    console.log('Received SIGTERM, cleaning up service instances...');
+    await serviceManager.cleanupAll();
+    process.exit(0);
+  });
+  
+  process.on('SIGINT', async () => {
+    console.log('Received SIGINT, cleaning up service instances...');
+    await serviceManager.cleanupAll();
+    process.exit(0);
+  });
 }

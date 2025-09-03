@@ -7,6 +7,7 @@ export async function POST(request: NextRequest) {
     const authorization = (await headersList).get("authorization");
     
     if (!authorization || !authorization.startsWith("Bearer ")) {
+      console.error("Missing or invalid authorization header");
       return NextResponse.json(
         { error: "Missing or invalid authorization header" },
         { status: 401 }
@@ -23,8 +24,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Basic validation for userId format (adjust regex based on Clerk's ID format)
+    if (!/^user_[a-zA-Z0-9]+$/.test(userId)) {
+      return NextResponse.json(
+        { error: "Invalid user ID format" },
+        { status: 400 }
+      );
+    }
+
     // Fetch user info from Clerk
-    const clerkResponse = await fetch(`https://api.clerk.dev/v1/users/${userId}`, {
+    const clerkApiUrl = process.env.CLERK_API_URL || "https://api.clerk.dev";
+    const clerkResponse = await fetch(`${clerkApiUrl}/v1/users/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -43,8 +53,8 @@ export async function POST(request: NextRequest) {
     // Return user data for Convex to process
     return NextResponse.json({
       clerkId: userId,
-      email: clerkUser.email_addresses[0]?.email_address || "",
-      name: `${clerkUser.first_name || ""} ${clerkUser.last_name || ""}`.trim() || clerkUser.username,
+      email: clerkUser.email_addresses?.[0]?.email_address || "",
+      name: `${clerkUser.first_name || ""} ${clerkUser.last_name || ""}`.trim() || clerkUser.username || "",
       imageUrl: clerkUser.image_url,
       subscriptionTier: "free", // Default tier
       subscriptionStatus: "active",
