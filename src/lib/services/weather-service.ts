@@ -13,19 +13,27 @@ export class WeatherService implements IntegrationService {
 
   constructor(config: IntegrationConfig) {
     this.config = config;
-    // Import RateLimiter dynamically for better compatibility
-    import('../integrations').then(module => {
+    this.initializeRateLimiter();
+  }
+
+  private async initializeRateLimiter(): Promise<void> {
+    try {
+      const module = await import('../integrations');
       this.rateLimiter = new module.RateLimiter(
         RATE_LIMIT_REQUESTS,
         RATE_LIMIT_WINDOW
       );
-    }).catch(error => {
-      console.error('Failed to load RateLimiter:', error);
-      // Fallback to a simple rate limiter
+    } catch (error) {
+      console.error('Failed to load RateLimiter, using fallback:', error);
+      // Ensure rateLimiter is always initialized with a fallback
       this.rateLimiter = {
-        check: () => ({ allowed: true, remaining: RATE_LIMIT_REQUESTS, reset: Date.now() + RATE_LIMIT_WINDOW })
+        check: () => ({
+          allowed: true,
+          remaining: RATE_LIMIT_REQUESTS,
+          reset: Date.now() + RATE_LIMIT_WINDOW
+        })
       };
-    });
+    }
   }
 
   async initialize(config: IntegrationConfig): Promise<IntegrationResponse> {
@@ -68,7 +76,6 @@ export class WeatherService implements IntegrationService {
           error: 'Invalid OpenWeatherMap API key format'
         };
       }
-
       // Test the API key with a simple call
       const url = `${API_BASE_URL}/weather?q=London&appid=${apiKey}&units=metric`;
       
@@ -186,14 +193,26 @@ export class WeatherService implements IntegrationService {
       const currentData = await currentResponse.json();
       
       // Validate and transform current weather data
-      if (!currentData.coord || !currentData.main || !currentData.weather || !currentData.wind || !currentData.dt) {
+      if (!currentData.coord || typeof currentData.coord.lat !== 'number' || typeof currentData.coord.lon !== 'number' ||
+          !currentData.main || typeof currentData.main.temp !== 'number' ||
+          !Array.isArray(currentData.weather) || currentData.weather.length === 0 ||
+          !currentData.wind || typeof currentData.wind.speed !== 'number' ||
+          typeof currentData.dt !== 'number') {
         console.error('WeatherService: Invalid current weather response structure');
         return {
           success: false,
           error: 'Invalid weather data structure received from API'
         };
       }
-      
+
+      // Sanity check temperature range (-100°C to 60°C)
+      if (currentData.main.temp < -100 || currentData.main.temp > 60) {
+        console.error('WeatherService: Temperature out of reasonable range:', currentData.main.temp);
+        return {
+          success: false,
+          error: 'Invalid temperature data received from API'
+        };
+      }      
       const transformedData = this.transformWeatherData(currentData);
 
       // Get forecast if requested

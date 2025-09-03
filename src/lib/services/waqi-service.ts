@@ -51,15 +51,15 @@ export class WAQIService implements IntegrationService {
       // Test the token with a simple API call
       const baseUrl = 'https://api.waqi.info/feed/geo:40.7128;-74.0060/';
       const urlParams = new URLSearchParams({
-        format: 'json'
+        format: 'json',
+        token: token
       });
       const url = `${baseUrl}?${urlParams.toString()}`;
       
       const response = await fetch(url, {
         method: 'GET',
         headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Accept': 'application/json'
         }
       });
 
@@ -120,26 +120,31 @@ export class WAQIService implements IntegrationService {
       const token = this.config.apiKeys.WAQI_API_TOKEN;
       const baseUrl = `https://api.waqi.info/feed/geo:${location.latitude};${location.longitude}/`;
       const urlParams = new URLSearchParams({
-        format: 'json'
+        format: 'json',
+        token: token
       });
       const url = `${baseUrl}?${urlParams.toString()}`;
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        signal: controller.signal
-      });
-      clearTimeout(timeout);
-      if (!response.ok) {
-        return {
-          success: false,
-          error: `API request failed: ${response.status} ${response.statusText}`
-        };
+      let response: Response;
+      try {
+        response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json'
+          },
+          signal: controller.signal
+        });
+
+        if (!response.ok) {
+          return {
+            success: false,
+            error: `API request failed: ${response.status} ${response.statusText}`
+          };
+        }
+      } finally {
+        clearTimeout(timeout);
       }
 
       const result = await response.json();

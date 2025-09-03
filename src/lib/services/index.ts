@@ -1,5 +1,6 @@
 import { WAQIService } from './waqi-service';
 import { WeatherService } from './weather-service';
+import { SendGridService } from './sendgrid-service';
 import type { IntegrationService, IntegrationType } from '../integrations';
 import type { IntegrationConfig } from '../integrations';
 
@@ -27,7 +28,7 @@ export const INTEGRATION_SERVICES: { [key in IntegrationType]: new (config: Inte
   google: createStubService(),
   mapbox: createStubService(),
   twilio: createStubService(),
-  sendgrid: createStubService(),
+  sendgrid: SendGridService,
   slack: createStubService(),
   discord: createStubService(),
   notion: createStubService(),
@@ -98,7 +99,7 @@ export const INTEGRATION_SERVICE_INFO: { [key in IntegrationType]: {
     description: 'Email delivery and marketing',
     requiredApiKeys: ['SENDGRID_API_KEY'],
     features: ['Email delivery', 'Templates', 'Analytics'],
-    rateLimit: '500 emails per day'
+    rateLimit: '100 requests per second'
   },
   slack: {
     name: 'Slack',

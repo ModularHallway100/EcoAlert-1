@@ -192,14 +192,16 @@ export const verifyWebhookSignature = (
       .update(JSON.stringify(payload))
       .digest('hex');
     
-    const sig1 = Buffer.from(signature);
-    const sig2 = Buffer.from(expectedSignature);
+    // Normalize header like "sha256=abcdef..." and decode hex → bytes
+    const sig1 = Buffer.from(signature.replace(/^sha256=/i, ''), 'hex');
+    const sig2 = Buffer.from(expectedSignature, 'hex');
 
     if (sig1.length !== sig2.length) {
       return false;
     }
 
-    return crypto.timingSafeEqual(sig1, sig2);  } catch (error) {
+    return crypto.timingSafeEqual(sig1, sig2);
+  } catch (error) {
     console.error('Webhook signature verification failed:', error);
     return false;
   }
@@ -231,10 +233,8 @@ export const checkIntegrationHealth = async (
       status: 'unhealthy',
       error: result.error
     };
-  } catch (err: any) {
-    return {
-      status: 'unhealthy',
-      error: err.message
-    };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    return { status: 'unhealthy', error: message };
   }
-};
+}
