@@ -9,15 +9,6 @@ export const ai = genkit({
     }),
   ],
   model: process.env.GOOGLE_GENAI_MODEL || 'googleai/gemini-1.5-flash-latest',
-  config: {
-    // Default generation config
-    temperature: 0.7,
-    maxOutputTokens: 1000,
-    topP: 0.8,
-    topK: 40,
-  },
-  // Enable debug mode in development
-  debug: process.env.NODE_ENV === 'development',
 });
 
 // Helper function to check if AI is properly configured

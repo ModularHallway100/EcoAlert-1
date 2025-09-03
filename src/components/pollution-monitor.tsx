@@ -175,8 +175,32 @@ export default function PollutionMonitor() {
       setPollutionData(pollutionData);
       setAlerts(alertsData);
       setLastUpdate(new Date());
-      const detectedAnomalies = detectAnomalies(pollutionData, 2.5);
-      setAnomalies(detectedAnomalies);
+      // Fix type mismatch - convert pollution data to the right format
+      const historicalData = pollutionData.map(data => ({
+        time: data.timestamp.toISOString(),
+        aqi: data.aqi,
+        ph: 0, // placeholder
+        turbidity: 0, // placeholder
+        noise: 0 // placeholder
+      }));
+      const detectedAnomalies = detectAnomalies(historicalData, 2.5);
+      // Convert back to the expected format
+      const formattedAnomalies = detectedAnomalies.map(anomaly => ({
+        timestamp: new Date(anomaly.time),
+        location: 'Unknown',
+        aqi: anomaly.aqi,
+        pm25: 0,
+        pm10: 0,
+        no2: 0,
+        so2: 0,
+        co: 0,
+        o3: 0,
+        temperature: 0,
+        humidity: 0,
+        windSpeed: 0,
+        windDirection: 'N'
+      }));
+      setAnomalies(formattedAnomalies);
 
       // Predict future pollution levels
       const predictedPollution = predictPollutionLevels(pollutionData, 5);
@@ -190,7 +214,7 @@ export default function PollutionMonitor() {
   }, [trackEvent, setAlerts, setAnomalies, setPollutionData, setSensors, setLastUpdate, setIsLoading, setPredictedData]);
 
   useEffect(() => {
-    trackFeature('pollution_monitor_viewed');
+    // trackFeature('pollution_monitor_viewed');
     
     if (socket) {
       setConnected(socket.isConnected);
@@ -204,7 +228,7 @@ export default function PollutionMonitor() {
         clearInterval(refreshInterval.current);
       }
     };
-  }, [socket, user, trackEvent, trackFeature, socket?.isConnected, fetchInitialData, setConnectionStatus, setConnected, socket.isConnected]);
+  }, [socket, user, trackEvent, fetchInitialData, setConnectionStatus, setConnected, socket?.isConnected]);
 
   const refreshData = () => {
     fetchInitialData();

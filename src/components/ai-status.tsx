@@ -69,9 +69,24 @@ export function AIStatus({ onConfigClick }: AIStatusProps) {
   };
 
   const getStatusVariant = () => {
-    if (checking) return 'secondary';
+    if (checking) return 'default';
     if (!status?.configured) return 'destructive';
     return 'default';
+  };
+
+  const getEnvironmentBadge = () => {
+    const env = status?.environment || 'development';
+    const variants = {
+      development: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+      production: 'bg-primary text-primary-foreground hover:bg-primary/80',
+      test: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground'
+    } as const;
+    
+    return (
+      <Badge className={variants[env as keyof typeof variants]}>
+        {env}
+      </Badge>
+    );
   };
 
   const getStatusMessage = () => {
@@ -85,20 +100,6 @@ export function AIStatus({ onConfigClick }: AIStatusProps) {
     return 'AI is ready and configured';
   };
 
-  const getEnvironmentBadge = () => {
-    const env = status?.environment || 'development';
-    const variants = {
-      development: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-      production: 'bg-primary text-primary-foreground hover:bg-primary/80',
-      test: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground'
-    } as const;
-    
-    return (
-      <Badge className={variants[env as keyof typeof variants] || variants.secondary}>
-        {env}
-      </Badge>
-    );
-  };
 
   return (
     <Card className="shadow-xl rounded-xl">

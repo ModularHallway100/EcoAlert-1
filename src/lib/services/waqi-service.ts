@@ -49,8 +49,18 @@ export class WAQIService implements IntegrationService {
       }
 
       // Test the token with a simple API call
-      const response = await fetch(`https://api.waqi.info/feed/geo:40.7128;-74.0060/?token=${token}`, {
-        method: 'GET'
+      const baseUrl = 'https://api.waqi.info/feed/geo:40.7128;-74.0060/';
+      const urlParams = new URLSearchParams({
+        format: 'json'
+      });
+      const url = `${baseUrl}?${urlParams.toString()}`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       if (!response.ok) {
@@ -99,16 +109,32 @@ export class WAQIService implements IntegrationService {
         longitude: -74.0060
       };
 
+      // Validate that the WAQI API token is configured
+      if (!this.config.apiKeys?.WAQI_API_TOKEN) {
+        return {
+          success: false,
+          error: 'WAQI API token not configured'
+        };
+      }
+
       const token = this.config.apiKeys.WAQI_API_TOKEN;
-      const url = `https://api.waqi.info/feed/geo:${location.latitude};${location.longitude}/?token=${token}&format=json`;
+      const baseUrl = `https://api.waqi.info/feed/geo:${location.latitude};${location.longitude}/`;
+      const urlParams = new URLSearchParams({
+        format: 'json'
+      });
+      const url = `${baseUrl}?${urlParams.toString()}`;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
       const response = await fetch(url, {
         method: 'GET',
         headers: {
-          'Accept': 'application/json'
-        }
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        signal: controller.signal
       });
-
+      clearTimeout(timeout);
       if (!response.ok) {
         return {
           success: false,
@@ -242,14 +268,18 @@ export class WAQIService implements IntegrationService {
   }
 
   private transformWAQIData(waqiData: any): any {
-    const data = waqiData.data;
-    
+    const data = waqiData?.data;
+
+    if (!data || !data.city || !data.city.coord) {
+      throw new Error('Invalid WAQI response structure');
+    }
+
     return {
       location: {
-        latitude: data.city.coord.lat,
-        longitude: data.city.coord.lon,
-        city: data.city.name,
-        country: data.city.country
+        latitude: data.city.coord?.lat ?? 0,
+        longitude: data.city.coord?.lon ?? 0,
+        city: data.city?.name ?? 'Unknown',
+        country: data.city?.country ?? 'Unknown'
       },
       aqi: data.aqi,
       dominantPollutant: data.dominentpol || 'N/A',
@@ -272,7 +302,6 @@ export class WAQIService implements IntegrationService {
       source: 'waqi'
     };
   }
-
   private validateSettings(settings: { [key: string]: any }): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
     

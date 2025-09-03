@@ -13,6 +13,13 @@ export async function GET(
   try {
     const { id } = params;
 
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid integration ID'
+      }, { status: 400 });
+    }
+
     // Find integration
     const integration = integrationsStorage.get(id);
     if (!integration) {
@@ -81,23 +88,29 @@ export async function POST(
     // Create service instance
     const service = new ServiceClass(integration);
 
-    let result: IntegrationResponse;
-
     switch (action) {
       case 'sync':
         // Sync data from external service
-        result = await service.sync(data);
+        const result = await service.sync(data);
         
         if (result.success) {
+         // Re-fetch to ensure we have the latest version
+         const currentIntegration = integrationsStorage.get(id);
+         if (!currentIntegration) {
+           return NextResponse.json({
+             success: false,
+             error: 'Integration not found'
+           }, { status: 404 });
+         }
           // Update last sync time
-          integration.lastSync = new Date();
-          integrationsStorage.set(id, integration);
-
+          currentIntegration.lastSync = new Date();
+          integrationsStorage.set(id, currentIntegration);
+   
           return NextResponse.json({
             success: true,
             data: {
               ...result.data,
-              lastSync: integration.lastSync
+              lastSync: currentIntegration.lastSync
             },
             message: 'Data synced successfully'
           });
@@ -105,7 +118,7 @@ export async function POST(
           // Mark integration as error if sync failed
           integration.status = 'error';
           integrationsStorage.set(id, integration);
-
+   
           return NextResponse.json({
             success: false,
             error: 'Sync failed',
@@ -113,15 +126,10 @@ export async function POST(
           }, { status: 400 });
         }
 
-      case 'test':
-        // Test the integration
-        result = await service.test();
-        return NextResponse.json(result);
-
       case 'validate':
         // Validate configuration
-        result = await service.validate();
-        return NextResponse.json(result);
+        const validateResult = await service.validate();
+        return NextResponse.json(validateResult);
 
       case 'health':
         // Check integration health
@@ -175,13 +183,11 @@ export async function PUT(
       }, { status: 400 });
     }
 
-    // Create service instance
-    const service = new ServiceClass(integration);
-
     let updatedIntegration = { ...integration };
 
     // Update settings if provided
     if (settings) {
+      const service = new ServiceClass(updatedIntegration);
       const result = await service.updateSettings(settings);
       if (!result.success) {
         return NextResponse.json({
@@ -190,7 +196,9 @@ export async function PUT(
           details: result.error
         }, { status: 400 });
       }
-      updatedIntegration.settings = { ...integration.settings, ...settings };
+      // Use the service-returned settings if present, otherwise fall back to merging
+      updatedIntegration.settings =
+        result.data?.settings || { ...integration.settings, ...settings };
     }
 
     // Update status if provided

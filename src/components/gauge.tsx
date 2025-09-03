@@ -40,7 +40,6 @@ export function Gauge({ value }: GaugeProps) {
           stroke={aqiDetails.color}
           strokeWidth="12"
           strokeLinecap="round"
-          stroke="currentColor"
           fill="transparent"
           r="52"
           cx="60"

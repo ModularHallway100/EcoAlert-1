@@ -70,7 +70,7 @@ export function PersonalizedOnboarding({ profile, onComplete }: PersonalizedOnbo
     }));
   };
 
-  const handleAlertPriorityToggle = (priority: string) => {
+  const handleAlertPriorityToggle = (priority: 'air' | 'water' | 'noise' | 'general') => {
     setFormData(prev => ({
       ...prev,
       alertPriorities: prev.alertPriorities.includes(priority)
@@ -145,7 +145,7 @@ export function PersonalizedOnboarding({ profile, onComplete }: PersonalizedOnbo
                         ? 'ring-2 ring-primary bg-primary/5' 
                         : 'hover:bg-muted/50'
                     }`}
-                    onClick={() => setFormData(prev => ({ ...prev, primaryConcern: concern.id }))}
+                    onClick={() => setFormData(prev => ({ ...prev, primaryConcern: concern.id as 'air' | 'water' | 'noise' | 'general' }))}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
@@ -270,7 +270,7 @@ export function PersonalizedOnboarding({ profile, onComplete }: PersonalizedOnbo
                         ? 'border-primary bg-primary/5'
                         : 'hover:bg-muted/50'
                     }`}
-                    onClick={() => setFormData(prev => ({ ...prev, notificationLevel: level.value }))}
+                    onClick={() => setFormData(prev => ({ ...prev, notificationLevel: level.value as 'minimal' | 'moderate' | 'detailed' }))}
                   >
                     <div className="flex items-center justify-between">
                       <div>
@@ -305,11 +305,11 @@ export function PersonalizedOnboarding({ profile, onComplete }: PersonalizedOnbo
                   <div
                     key={priority.id}
                     className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                      formData.alertPriorities.includes(priority.id)
+                      formData.alertPriorities.includes(priority.id as 'air' | 'water' | 'noise' | 'general')
                         ? 'border-primary bg-primary/5'
                         : 'hover:bg-muted/50'
                     }`}
-                    onClick={() => handleAlertPriorityToggle(priority.id)}
+                    onClick={() => handleAlertPriorityToggle(priority.id as 'air' | 'water' | 'noise' | 'general')}
                   >
                     <div className="flex flex-col items-center gap-2">
                       <span className="text-xl">{priority.icon}</span>

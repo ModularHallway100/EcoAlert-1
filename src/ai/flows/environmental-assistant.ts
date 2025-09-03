@@ -109,7 +109,7 @@ export async function getHealthEnvironmentalAdvice(
       return getHealthFallbackResponse(healthProfile, currentConditions);
     }
 
-    return await healthEnvironmentalAdviceFlow(healthProfile, currentConditions, question);
+    return await healthEnvironmentalAdviceFlow({ healthProfile, currentConditions, question });
   } catch (error) {
     console.error('Error in health environmental advice:', error);
     return getHealthFallbackResponse(healthProfile, currentConditions);

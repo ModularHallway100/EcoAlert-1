@@ -15,12 +15,12 @@ import {
   ChartContainer,
 } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import type { HistoricalData } from "@/lib/types";
+import type { HistoricalData, PollutionData } from "@/lib/types";
 import { Button } from "./ui/button";
 import { Download } from "lucide-react";
 
 type ReportsGraphsProps = {
-  data: HistoricalData[];
+  data: PollutionData[];
 };
 
 const CustomTooltip = ({ active, payload, label }: any) => {

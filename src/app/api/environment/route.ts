@@ -13,10 +13,19 @@ const getWaqiApiData = async (latitude: number, longitude: number): Promise<{ aq
     return { aqi: null, dominantPollutant: null };
   }
 
-  const url = `https://api.waqi.info/feed/geo:${latitude};${longitude}/?token=${token}`;
+  const baseUrl = `https://api.waqi.info/feed/geo:${latitude};${longitude}/`;
+  const urlParams = new URLSearchParams({
+    format: 'json'
+  });
+  const url = `${baseUrl}?${urlParams.toString()}`;
   
   try {
-    const response = await fetch(url, { next: { revalidate: 600 } }); // Cache for 10 minutes
+    const response = await fetch(url, {
+      next: { revalidate: 600 }, // Cache for 10 minutes
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
     if (!response.ok) {
       console.error(`WAQI API request failed with status ${response.status}`);
       return { aqi: null, dominantPollutant: null };

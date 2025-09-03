@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import type { IntegrationConfig, IntegrationType, IntegrationResponse } from '@/lib/integrations';
 import { validateIntegration } from '@/lib/integrations';
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
 
     // Get all integrations or filter by type/status
     let integrations = Array.from(integrationsStorage.values());
-    
+
     if (type) {
       integrations = integrations.filter(integration => integration.type === type);
     }
@@ -53,8 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate integration configuration
-    const validation = validateIntegration({ name, type, apiKeys, settings: {} });
-    if (!validation.valid) {
+    const validation = validateIntegration({ name, type, apiKeys, settings: settings || {} });    if (!validation.valid) {
       return NextResponse.json({
         success: false,
         error: 'Invalid integration configuration',
@@ -156,7 +156,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Validate updates
-    const validation = validateIntegration(updates);
+    const validation = validateIntegration({ ...existing, ...updates });
     if (!validation.valid) {
       return NextResponse.json({
         success: false,
@@ -232,11 +232,15 @@ export async function DELETE(request: NextRequest) {
       }, { status: 404 });
     }
 
-    // Disconnect the integration
     const ServiceClass = SERVICE_REGISTRY[existing.type];
     if (ServiceClass) {
       const service = new ServiceClass(existing);
-      await service.disconnect();
+      try {
+        await service.disconnect();
+      } catch (disconnectError) {
+        console.error(`Failed to disconnect integration ${id}:`, disconnectError);
+        // Continue with deletion even if disconnect fails, but log the error
+      }
     }
 
     // Remove from storage

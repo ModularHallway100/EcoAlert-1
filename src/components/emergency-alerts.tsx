@@ -151,7 +151,7 @@ export function EmergencyAlerts({ onTriggerEmergency, aqi, ph, turbidity, noise 
       case 'critical': return 'destructive';
       case 'high': return 'destructive';
       case 'medium': return 'default';
-      case 'low': return 'secondary';
+      case 'low': return 'default';
       default: return 'default';
     }
   };

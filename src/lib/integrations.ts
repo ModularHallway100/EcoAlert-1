@@ -192,18 +192,24 @@ export const verifyWebhookSignature = (
       .update(JSON.stringify(payload))
       .digest('hex');
     
-    return crypto.timingSafeEqual(
-      Buffer.from(signature),
-      Buffer.from(expectedSignature)
-    );
-  } catch (error) {
+    const sig1 = Buffer.from(signature);
+    const sig2 = Buffer.from(expectedSignature);
+
+    if (sig1.length !== sig2.length) {
+      return false;
+    }
+
+    return crypto.timingSafeEqual(sig1, sig2);  } catch (error) {
     console.error('Webhook signature verification failed:', error);
     return false;
   }
 };
 
 // Integration health check
-export const checkIntegrationHealth = async (config: IntegrationConfig): Promise<{
+export const checkIntegrationHealth = async (
+  config: IntegrationConfig,
+  healthyThresholdMs: number = 1000
+): Promise<{
   status: 'healthy' | 'unhealthy' | 'degraded';
   responseTime?: number;
   error?: string;
@@ -216,19 +222,19 @@ export const checkIntegrationHealth = async (config: IntegrationConfig): Promise
     
     if (result.success) {
       return {
-        status: responseTime < 1000 ? 'healthy' : 'degraded',
+        status: responseTime < healthyThresholdMs ? 'healthy' : 'degraded',
         responseTime
       };
-    } else {
-      return {
-        status: 'unhealthy',
-        error: result.error
-      };
     }
-  } catch (error) {
+
     return {
       status: 'unhealthy',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: result.error
+    };
+  } catch (err: any) {
+    return {
+      status: 'unhealthy',
+      error: err.message
     };
   }
 };

@@ -240,7 +240,11 @@ NODE_ENV=development`
                       ) : step.action.component === "AIStatus" ? (
                         <Button variant="outline" size="sm" onClick={() => {
                           // Navigate to AI status tab
-                          document.querySelector('[value="ai-status"]')?.click();
+                          // Use a more reliable way to navigate to AI status
+                          const statusElement = document.querySelector('[value="ai-status"]') as HTMLButtonElement;
+                          if (statusElement) {
+                            statusElement.click();
+                          }
                         }}>
                           <CheckCircle className="h-4 w-4 mr-2" />
                           {step.action.label}

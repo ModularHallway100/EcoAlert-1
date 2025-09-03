@@ -3,7 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from '@/components/theme-provider';
 import { Inter } from 'next/font/google';
-import { Providers } from '@/components/clerk-provider';
+import { ClerkProvider } from "@clerk/nextjs";
+import ConvexClientProvider from '@/components/convex-client-provider';
 import { SocketProvider } from '@/components/socket-provider';
 import { AnalyticsProvider } from '@/components/analytics-provider';
 import { AuthProvider } from '@/components/auth-provider';
@@ -85,16 +86,18 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Providers>
-            <AuthProvider>
-              <SocketProvider>
-                <AnalyticsProvider>
-                  {children}
-                  <Toaster />
-                </AnalyticsProvider>
-              </SocketProvider>
-            </AuthProvider>
-          </Providers>
+          <ClerkProvider>
+            <ConvexClientProvider>
+              <AuthProvider>
+                <SocketProvider>
+                  <AnalyticsProvider>
+                    {children}
+                    <Toaster />
+                  </AnalyticsProvider>
+                </SocketProvider>
+              </AuthProvider>
+            </ConvexClientProvider>
+          </ClerkProvider>
         </ThemeProvider>
       </body>
     </html>

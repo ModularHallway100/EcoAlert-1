@@ -117,7 +117,7 @@ export const checkFeatureAccess = query({
     if (!user) return false;
 
     // Import subscription features from our library
-    const { getSubscriptionPlan } from "../src/lib/subscription";
+    const { getSubscriptionPlan } = require("../src/lib/subscription");
     const plan = getSubscriptionPlan(user.subscriptionTier);
     
     if (!plan) return false;

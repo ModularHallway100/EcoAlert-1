@@ -2,13 +2,15 @@
 import type { LucideProps } from "lucide-react";
 import type { ForwardRefExoticComponent, RefAttributes } from "react";
 
-export type HistoricalData = {
+export type PollutionData = {
   time: string;
   aqi: number;
   ph: number;
   turbidity: number;
   noise: number;
 };
+
+export type HistoricalData = PollutionData[];
 
 export type Emergency = {
   type: string | null;

@@ -37,15 +37,25 @@ export async function POST(request: NextRequest) {
 
     // Parse and verify request body
     const rawBody = await request.text();
-    const payload: WebhookPayload = JSON.parse(rawBody);
 
     // Verify signature
-    const isValid = verifyWebhookSignature(payload, signature, secret);
+    const isValid = verifyWebhookSignature(rawBody, signature, secret);
     if (!isValid) {
       return NextResponse.json({
         success: false,
         error: 'Invalid webhook signature'
       }, { status: 401 });
+    }
+
+    // Parse payload after signature verification
+    let payload: WebhookPayload;
+    try {
+      payload = JSON.parse(rawBody);
+    } catch (parseError) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid JSON payload'
+      }, { status: 400 });
     }
 
     // Process the webhook based on integration type and event type
@@ -66,6 +76,12 @@ export async function POST(request: NextRequest) {
 // Store webhook secret for an integration
 export async function PUT(request: NextRequest) {
   try {
+    // Add authentication check here
+    // const isAuthorized = await verifyApiKey(request);
+    // if (!isAuthorized) {
+    //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    // }
+
     const body = await request.json();
     const { integrationId, secret } = body;
 
@@ -73,6 +89,14 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({
         success: false,
         error: 'Integration ID and secret are required'
+      }, { status: 400 });
+    }
+
+    // Validate secret format/length
+    if (typeof secret !== 'string' || secret.length < 10) {
+      return NextResponse.json({
+        success: false,
+        error: 'Secret must be a string with at least 10 characters'
       }, { status: 400 });
     }
 
@@ -93,10 +117,15 @@ export async function PUT(request: NextRequest) {
     }, { status: 500 });
   }
 }
-
 // Remove webhook secret for an integration
 export async function DELETE(request: NextRequest) {
   try {
+    // Add authentication check here
+    // const isAuthorized = await verifyApiKey(request);
+    // if (!isAuthorized) {
+    //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    // }
+
     const { searchParams } = new URL(request.url);
     const integrationId = searchParams.get('integrationId');
 
@@ -124,7 +153,6 @@ export async function DELETE(request: NextRequest) {
     }, { status: 500 });
   }
 }
-
 // Process webhook payload based on integration type and event type
 async function processWebhook(payload: WebhookPayload): Promise<{ success: boolean; message: string; data?: any }> {
   try {
