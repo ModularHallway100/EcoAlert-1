@@ -9,6 +9,7 @@ const publicRoutes = createRouteMatcher([
   "/api/health",
   "/api/auth/clerk",
   "/api/auth/webhook",
+  "/api/auth/sync",
   "/api/environment",
   "/api/environment/sensors",
   "/api/environment/websocket",
@@ -17,17 +18,19 @@ const publicRoutes = createRouteMatcher([
   "/api/educational/analytics",
   "/api/social/posts",
   "/api/analytics",
+  "/api/analytics/events",
   "/api/integrations",
   "/api/integrations/docs",
   "/api/integrations/webhooks",
   "/api/integrations/(.*)",
   "/api/user/profile",
+  "/api/user/profile?userId=anonymous",
 ]);
 
-export default clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   if (!publicRoutes(req)) {
-    // Try using the imported auth function instead of the parameter
-    auth.protect();
+    // Protect non-public routes
+    await auth.protect();
   }
 });
 

@@ -1,0 +1,16 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "executionArgs": {
+    "projectName": "EcoAlert",
+    "projectPath": "e:/EcoAlert/EcoAlert-1",
+    "testIds": [],
+    "additionalInstruction": "Generate comprehensive tests for the EcoAlert environmental monitoring application, focusing on authentication flow, dashboard functionality, real-time monitoring, and user profile management. Include tests for Clerk authentication, dashboard data visualization, real-time sensor data updates, and user profile creation.",
+    "envs": {
+      "API_KEY": "sk-user-Z9hBhCDvVys4FIzZnoncTZnLbqoGfanFB6gNuNTJjHkqLtL7uCmZ8OuL68XaqdRixNy6ocIkK98W8aXzlK2e5cuMldhBy0K2H-EJg484ETkFRkcHjkzZPHzCZTE98_OLddo"
+    }
+  },
+  "proxy": "http://7e714fe1-a9e0-47c8-8b2b-4acfa6f6b2c7:3SZ93PzcfcX2gWOaDhP3aajJga6B1Chl@tun.testsprite.com:8080"
+}

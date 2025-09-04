@@ -50,21 +50,19 @@ export async function POST(request: NextRequest) {
     // Example: verify JWT signature, check expiration, etc.
 
     // Validate required fields
-    if (!userData.clerkId) {
+    if (typeof userData.clerkId !== "string" || userData.clerkId.trim() === "") {
       return NextResponse.json(
         { error: "Clerk ID is required" },
         { status: 400 }
       );
     }
-
     // Get user info from Clerk using server-side integration
     let clerkUser;
     try {
       const clerkClientInstance = await clerkClient();
-      clerkUser = await clerkClientInstance.users.getUser(userData.clerkId);
-    } catch (clerkError) {
-      console.error("Error fetching user from Clerk:", clerkError);
-      return NextResponse.json(
+      try {
+        clerkUser = await clerkClient.users.getUser(userData.clerkId);
+      } catch (clerkError) {      return NextResponse.json(
         { error: "Failed to fetch user data from Clerk" },
         { status: 404 }
       );

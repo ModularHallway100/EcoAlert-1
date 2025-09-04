@@ -31,6 +31,7 @@ export function useAuthWithConvex(): AuthUser {
   useEffect(() => {
     if (isLoaded && isSignedIn && userId) {
       let isCancelled = false;
+      let abortController: AbortController | null = null;
       
       const syncUserWithBackend = async () => {
         try {
@@ -40,26 +41,31 @@ export function useAuthWithConvex(): AuthUser {
           
           while (retryCount < maxRetries && !isCancelled) {
             try {
+              // Get fresh token per attempt
+              const token = await getToken({ skipCache: true }).catch(() => null);
+              if (!token) throw new Error('Auth token unavailable');
+
               // Sync user data with our backend (server will fetch Clerk data)
+              abortController = new AbortController();
               const syncResponse = await fetch('/api/auth/sync', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${await getToken()}`,
+                  'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify({
                   clerkId: userId,
                 }),
-              });
-              
-              if (!syncResponse.ok) {
+                signal: abortController.signal,
+              });              if (!syncResponse.ok) {
                 throw new Error(`Failed to sync user data: ${syncResponse.status}`);
               }
               
-              const result = await syncResponse.json();
-              console.log('User data synced successfully:', result);
-              break; // Success, exit retry loop
-              
+              await syncResponse.json().catch(() => ({}));
+              if (process.env.NODE_ENV !== 'production') {
+                console.debug('User data synced successfully');
+              }
+              break; // Success, exit retry loop              
             } catch (error) {
               retryCount++;
               if (retryCount >= maxRetries) {
@@ -85,8 +91,8 @@ export function useAuthWithConvex(): AuthUser {
       // Cleanup function to cancel in-flight sync
       return () => {
         isCancelled = true;
-      };
-    }
+        abortController?.abort();
+      };    }
   }, [isLoaded, isSignedIn, userId, getToken]);
 
   if (!isLoaded) {

@@ -75,7 +75,7 @@ export async function POST(request: Request) {
       return new Response("Error: Invalid signature", { status: 400 });
     }
 
-    console.log("Webhook received:", evt);
+    console.log("Webhook verified", { svix_id, type: evt.type });
 
     console.log("Webhook event received:", evt.type);
 
@@ -105,7 +105,7 @@ export async function POST(request: Request) {
 
       // Here you would typically call your Convex backend to upsert the user
       // For now, we'll just log the data
-      console.log("User data to sync:", userData);
+      console.log("Syncing user data for clerkId:", userData.clerkId);
 
       // In a real implementation, you would call your Convex mutation here:
       // await ctx.db.insert("users", userData);

@@ -1,0 +1,117 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "Next.js",
+    "React",
+    "Tailwind CSS",
+    "Clerk",
+    "Convex",
+    "Firebase",
+    "Genkit AI",
+    "Leaflet",
+    "Socket.io",
+    "Radix UI"
+  ],
+  "features": [
+    {
+      "name": "Authentication System",
+      "description": "User authentication using Clerk with Google, email, and phone methods",
+      "files": [
+        "src/app/layout.tsx",
+        "src/app/sign-in/[[...sign-in]]/page.tsx",
+        "src/app/sign-up/[[...sign-up]]/page.tsx",
+        "src/app/onboarding/page.tsx",
+        "src/components/auth-provider.tsx"
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "description": "Main dashboard with environmental data visualization and analytics",
+      "files": [
+        "src/app/dashboard/page.tsx",
+        "src/components/dashboard/air-quality-chart.tsx",
+        "src/components/dashboard/pollution-heatmap.tsx",
+        "src/components/dashboard/alerts-panel.tsx"
+      ]
+    },
+    {
+      "name": "Real-time Monitoring",
+      "description": "Real-time environmental data monitoring with WebSocket integration",
+      "files": [
+        "src/app/monitoring/page.tsx",
+        "src/components/monitoring/live-sensors.tsx",
+        "src/components/monitoring/sensor-map.tsx",
+        "src/lib/socket.ts"
+      ]
+    },
+    {
+      "name": "User Profile Management",
+      "description": "User profile creation, editing, and management",
+      "files": [
+        "src/app/profile/page.tsx",
+        "src/components/profile/profile-form.tsx",
+        "src/components/profile/preferences.tsx"
+      ]
+    },
+    {
+      "name": "AI Analytics",
+      "description": "AI-powered environmental analytics and predictions using Genkit",
+      "files": [
+        "src/app/analytics/page.tsx",
+        "src/components/analytics/predictions.tsx",
+        "src/components/analytics/recommendations.tsx",
+        "src/ai/dev.ts"
+      ]
+    },
+    {
+      "name": "Community Features",
+      "description": "Community engagement, sharing, and gamification",
+      "files": [
+        "src/app/community/page.tsx",
+        "src/components/community/posts.tsx",
+        "src/components/community/challenges.tsx",
+        "src/components/community/leaderboard.tsx"
+      ]
+    },
+    {
+      "name": "Emergency Response",
+      "description": "Emergency alert system and response coordination",
+      "files": [
+        "src/app/emergency/page.tsx",
+        "src/components/emergency/alerts.tsx",
+        "src/components/emergency/response-team.tsx",
+        "src/components/emergency/protocols.tsx"
+      ]
+    },
+    {
+      "name": "API Routes",
+      "description": "Backend API endpoints for data management and processing",
+      "files": [
+        "src/app/api/analytics/events/route.ts",
+        "src/app/api/auth/register/route.ts",
+        "src/app/api/profile/route.ts",
+        "src/app/api/sensors/route.ts"
+      ]
+    },
+    {
+      "name": "UI Components",
+      "description": "Reusable UI components using Radix UI and Tailwind CSS",
+      "files": [
+        "src/components/ui/button.tsx",
+        "src/components/ui/card.tsx",
+        "src/components/ui/dialog.tsx",
+        "src/components/ui/form.tsx",
+        "src/components/ui/input.tsx"
+      ]
+    },
+    {
+      "name": "Map Integration",
+      "description": "Interactive maps for pollution visualization and sensor locations",
+      "files": [
+        "src/components/map/pollution-heatmap.tsx",
+        "src/components/map/sensor-map.tsx",
+        "src/components/map/location-tracker.tsx"
+      ]
+    }
+  ]
+}

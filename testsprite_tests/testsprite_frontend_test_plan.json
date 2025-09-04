@@ -1,0 +1,619 @@
+[
+  {
+    "id": "TC001",
+    "title": "User Registration with Email and Password",
+    "description": "Verify that a new user can successfully register using email and password.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the registration page"
+      },
+      {
+        "type": "action",
+        "description": "Enter valid email, password, and required profile information"
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that user registration is successful and user is redirected to dashboard"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Login via Google OAuth",
+    "description": "Verify that a user can log in using Google OAuth authentication.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to login page"
+      },
+      {
+        "type": "action",
+        "description": "Select Login with Google option"
+      },
+      {
+        "type": "action",
+        "description": "Complete Google OAuth flow with valid account"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user is logged in and redirected to dashboard"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Password Reset Functionality",
+    "description": "Verify that users can reset their password using email authentication.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to login page"
+      },
+      {
+        "type": "action",
+        "description": "Click on 'Forgot Password' link"
+      },
+      {
+        "type": "action",
+        "description": "Enter registered email and submit request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify reset email is sent"
+      },
+      {
+        "type": "action",
+        "description": "Follow reset link and enter new password"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify password is updated and user can login with new password"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Real-Time Environmental Data Display",
+    "description": "Verify real-time environmental monitoring dashboard displays latest sensor data and updates within 1 second.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login and navigate to environmental monitoring dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify real-time data from multiple sensors is displayed in charts and graphs"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify data updates within 1 second of sensor data changes"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Alert System for Abnormal Sensor Readings",
+    "description": "Ensure alerts are generated and displayed when sensor data exceeds defined thresholds.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate abnormal sensor data beyond threshold value"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify alert notification is generated and visible in dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify alert includes sensor location and abnormal parameter details"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Historical Environmental Data Comparison",
+    "description": "Verify users can view and compare historical environmental data with current readings.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to sensor data page"
+      },
+      {
+        "type": "action",
+        "description": "Select a historical time range for comparison"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify data visualization updates to show historical comparison graphs"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Interactive Map with Sensor Locations",
+    "description": "Verify interactive map displays sensor locations correctly, supports filtering, and updates in real-time.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open monitoring map page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all sensor markers are visible on the map with correct locations"
+      },
+      {
+        "type": "action",
+        "description": "Apply filters (e.g., sensor types, pollution levels)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that only filtered sensor markers are shown"
+      },
+      {
+        "type": "action",
+        "description": "Simulate sensor data changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify map updates in real-time to reflect data changes"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "AI-Powered Analytics Insight Generation",
+    "description": "Check that AI analytics generate insights and predictions based on environmental data.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to AI analytics dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Request AI insights for selected sensor data set"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify insights and predictive trends are generated and displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Recommendation System for Environmental Interventions",
+    "description": "Verify AI-based recommendations are provided for environmental policy interventions and scenario modeling.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Access recommendations section"
+      },
+      {
+        "type": "action",
+        "description": "Input different policy scenarios for modeling"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recommendations update according to scenarios"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Community Forum Post Creation and Interaction",
+    "description": "Verify users can create posts, comment, and participate in community challenges.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to community forum"
+      },
+      {
+        "type": "action",
+        "description": "Create a new post with valid content"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify post is visible in forum"
+      },
+      {
+        "type": "action",
+        "description": "Comment on an existing post"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify comment is displayed correctly"
+      },
+      {
+        "type": "action",
+        "description": "Join a community environmental challenge"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify participation is recorded and displayed in leaderboard"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Emergency Alert Creation and Notification",
+    "description": "Verify emergency responders can create emergency alerts and notifications propagate in real-time.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as emergency responder"
+      },
+      {
+        "type": "action",
+        "description": "Create a new emergency alert with relevant details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify alert is displayed in all connected users' dashboards in real-time"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Emergency Response Team Coordination Tools",
+    "description": "Check that emergency responders can coordinate teams and communicate effectively during a crisis.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Access emergency response coordination panel"
+      },
+      {
+        "type": "action",
+        "description": "Assign users to response teams"
+      },
+      {
+        "type": "action",
+        "description": "Send messages via crisis communication tools"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify team assignments and messages are visible to all relevant team members"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "User Profile Creation and Editing",
+    "description": "Verify users can create profile upon registration and edit profile information.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Register a new user and login"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to profile page"
+      },
+      {
+        "type": "action",
+        "description": "Update profile fields (e.g., name, preferences)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify profile updates are saved and displayed correctly"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Notification Settings Management",
+    "description": "Verify users can configure notification preferences and receive alerts accordingly.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Go to notification settings"
+      },
+      {
+        "type": "action",
+        "description": "Enable/disable different types of notifications"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify notifications are received or blocked according to preferences"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "System Performance under Load",
+    "description": "Verify that the application maintains acceptable performance metrics under high concurrency (1000+ users).",
+    "category": "performance",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate 1000+ concurrent users accessing key features"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify average page load times remain under 3 seconds"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API response times are under 500ms"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify real-time updates are received within 1 second"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Data Encryption Validation",
+    "description": "Verify that data at rest and in transit is encrypted using AES-256 standard.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Inspect data storage in database for encryption at rest"
+      },
+      {
+        "type": "action",
+        "description": "Monitor network traffic during data transmission"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify encryption using AES-256 standard is applied"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "OAuth 2.0 and JWT Authentication Security",
+    "description": "Verify authentication mechanisms are secure and JWT tokens are properly issued and verified.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Perform login via OAuth 2.0"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify JWT token is issued with valid claims"
+      },
+      {
+        "type": "action",
+        "description": "Use invalid/expired token to access protected API"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is denied for invalid tokens"
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "API Rate Limiting and CORS Enforcement",
+    "description": "Verify API endpoints enforce rate limiting and restrict cross-origin requests appropriately.",
+    "category": "security",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send multiple rapid API requests exceeding rate limits"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API returns proper error code for rate limiting"
+      },
+      {
+        "type": "action",
+        "description": "Send API request from unauthorized origin"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify CORS policy blocks unauthorized requests"
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Responsive Design Verification",
+    "description": "Verify the user interface renders and functions correctly on mobile, tablet, and desktop screen sizes.",
+    "category": "usability",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open application on desktop browser"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI elements are displayed correctly and are usable"
+      },
+      {
+        "type": "action",
+        "description": "Resize window to tablet dimensions"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI adjusts layout properly"
+      },
+      {
+        "type": "action",
+        "description": "Open application on mobile device or emulator"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all features are accessible and usable"
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Accessibility Compliance Testing",
+    "description": "Verify UI meets WCAG 2.1 accessibility requirements including keyboard navigation and screen reader support.",
+    "category": "usability",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate through all major UI screens using keyboard only"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all interactive elements are reachable and operable"
+      },
+      {
+        "type": "action",
+        "description": "Test UI with screen reader software"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all content is described properly and usable"
+      }
+    ]
+  },
+  {
+    "id": "TC021",
+    "title": "Session Management and Timeout",
+    "description": "Verify user sessions are managed securely and expire appropriately after inactivity.",
+    "category": "security",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login and remain inactive until session timeout"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user is logged out and redirected to login page after timeout"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to use expired session token to access protected pages"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is denied"
+      }
+    ]
+  },
+  {
+    "id": "TC022",
+    "title": "Export Environmental Data Functionality",
+    "description": "Verify users can export filtered or selected environmental monitoring data correctly.",
+    "category": "functional",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Apply filters to sensor data (dates, types)"
+      },
+      {
+        "type": "action",
+        "description": "Select export option and choose export format"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify file is downloaded containing correct filtered data"
+      }
+    ]
+  },
+  {
+    "id": "TC023",
+    "title": "Custom Report Generation",
+    "description": "Verify AI analytics allows generation of custom reports and exports them correctly.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to report generation feature in analytics dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Configure report parameters (data range, metrics, predictions)"
+      },
+      {
+        "type": "action",
+        "description": "Generate report"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify report is generated and exportable in supported formats"
+      }
+    ]
+  },
+  {
+    "id": "TC024",
+    "title": "Activity and Achievement Tracking",
+    "description": "Verify user's activity history is recorded and achievement badges are awarded appropriately.",
+    "category": "functional",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Perform community interactions like posting and joining challenges"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to user profile activity and achievement section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify actions appear in activity history and relevant achievements are shown"
+      }
+    ]
+  },
+  {
+    "id": "TC025",
+    "title": "Backup and Disaster Recovery",
+    "description": "Verify daily backups are performed and data can be recovered from backup successfully.",
+    "category": "reliability",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Check automated backup logs for last 7 days"
+      },
+      {
+        "type": "action",
+        "description": "Perform data recovery from a backup snapshot"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify data is restored correctly without loss or corruption"
+      }
+    ]
+  }
+]

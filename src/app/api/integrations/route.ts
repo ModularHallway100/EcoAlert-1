@@ -12,7 +12,7 @@ class ServiceManager {
   /**
    * Get or create a service instance
    */
-  getService(type: IntegrationType, config: IntegrationConfig): any {
+    async getService(type: IntegrationType, config: IntegrationConfig): Promise<any> {
     const key = `${type}-${config.id}`;
     
     if (!this.services.has(key)) {
@@ -25,7 +25,7 @@ class ServiceManager {
       this.services.set(key, service);
       
       // Initialize the service
-      this.initializeService(service, config);
+      await this.initializeService(service, config);
     }
     
     return this.services.get(key);
@@ -103,8 +103,7 @@ class ServiceManager {
         console.error(`Failed to disconnect service for ${config.id}:`, error);
         // Continue with cleanup even if disconnect fails
       } finally {
-        // Remove from registries
-        this.services.delete(key);
+        const configId = key.split('-').slice(1).join('-');        this.services.delete(key);
         this.connections.delete(config.id);
       }
     }
@@ -238,7 +237,7 @@ export async function POST(request: NextRequest) {
 
     try {
       // Use service manager to initialize
-      serviceManager.getService(type, config);
+      await serviceManager.getService(type, config);
       
       // Mark as active if initialization succeeded
       config.status = 'active';
@@ -383,20 +382,27 @@ export async function DELETE(request: NextRequest) {
 
     // Remove from storage
     integrationsStorage.delete(id);
+// Handle server shutdown cleanup
+if (typeof process !== 'undefined' && process.on) {
+  const handleShutdown = async (signal: string) => {
+    console.log(`Received ${signal}, cleaning up service instances...`);
+    try {
+      await serviceManager.cleanupAll();
+    } catch (error) {
+      console.error('Error during cleanup:', error);
+    } finally {
+      process.exit(0);
+    }
+  };
 
-    return NextResponse.json({
-      success: true,
-      message: 'Integration deleted successfully'
-    });
+  process.on('SIGTERM', async () => {
+    await handleShutdown('SIGTERM');
+  });
 
-  } catch (error) {
-    console.error('Error deleting integration:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Internal server error',
-      message: process.env.NODE_ENV === 'development'
-        ? (error instanceof Error ? error.message : 'Unknown error')
-        : 'An unexpected error occurred'
+  process.on('SIGINT', async () => {
+    await handleShutdown('SIGINT');
+  });
+}        : 'An unexpected error occurred'
     }, { status: 500 });
   }
 }

@@ -1,0 +1,16 @@
+{
+  "id": "simple-frontend-test",
+  "title": "Simple Frontend Test",
+  "description": "Basic frontend functionality test",
+  "steps": [
+    {
+      "stepId": "homepage-test",
+      "stepName": "Homepage Test",
+      "stepDescription": "Navigate to homepage and verify it loads",
+      "action": "navigate",
+      "target": "http://localhost:3000",
+      "expectedResult": "Homepage loads successfully",
+      "validation": "Page loads without errors"
+    }
+  ]
+}

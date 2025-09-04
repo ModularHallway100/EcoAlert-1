@@ -12,8 +12,8 @@ export default function SignUpPage() {
           </p>
         </div>
         <SignUp
-          routing="hash"
-          signInForceRedirectUrl="/sign-in"
+          path="/sign-up"
+          forceRedirectUrl="/onboarding"
           afterSignUpUrl="/onboarding"
           appearance={{
             elements: {

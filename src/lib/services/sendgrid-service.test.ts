@@ -5,7 +5,7 @@
  * including static rate limiting, dynamic header-driven throttling, and burst request handling.
  * 
  * Note: These tests are designed to be framework-agnostic and can be run with any test runner
- * that supports async/await and basic assertion capabilities.
+ * that supports async/await and basic assertion capabilities. 
  */
 
 import { SendGridService } from './sendgrid-service';
@@ -131,7 +131,7 @@ function runTests() {
         notifications: [{ to: 'test@example.com', message: 'Test', type: 'info' }]
       });
       
-      if (!result.success && result.error && result.error.includes('All emails failed to send')) {
+      if (!result.success && result.error?.includes('All emails failed to send')) {
         console.log('✓ Rate limit exceeded error handled correctly');
       } else {
         console.log('✗ Rate limit exceeded test failed:', result);
@@ -233,9 +233,10 @@ function runTests() {
     
     try {
       // Test with an invalid API key
-      // Test with an invalid API key
-      const invalidConfig = { ...mockConfig };
-      invalidConfig.apiKeys.SENDGRID_API_KEY = 'invalid-key';
+      const invalidConfig = {
+        ...mockConfig,
+        apiKeys: { ...mockConfig.apiKeys, SENDGRID_API_KEY: 'invalid-key' },
+      };
       
       // Mock an authentication error response
       global.fetch = createMockFetch([{
@@ -249,7 +250,7 @@ function runTests() {
       const invalidService = new SendGridService(invalidConfig);
       const result = await invalidService.validate();
       
-      if (!result.success && result.error && result.error.includes('Authentication error')) {
+      if (!result.success && result.error?.includes('Authentication error')) {
         console.log('✓ Error handling works correctly');
       } else {
         console.log('✗ Error handling test failed:', result);
@@ -275,7 +276,7 @@ function runTests() {
       const invalidService = new SendGridService(invalidConfig);
       const result = await invalidService.validate();
       
-      if (!result.success && result.error && result.error.includes('API key is missing')) {
+      if (!result.success && result.error?.includes('API key is missing')) {
         console.log('✓ Missing API key validation works');
       } else {
         console.log('✗ Configuration validation test failed:', result);

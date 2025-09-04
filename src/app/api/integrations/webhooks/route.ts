@@ -78,9 +78,17 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     // Parse request body
-    const body = await request.json();
-    const { integrationId, secret } = body;
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid JSON in request body'
+      }, { status: 400 });
+    }
 
+    const { integrationId, secret } = body;
     if (!integrationId || !secret) {
       return NextResponse.json({
         success: false,

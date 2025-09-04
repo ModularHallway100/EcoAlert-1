@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/components/auth-provider';
+import { useAuth, useUser } from '@clerk/nextjs';
 import { useAnalytics } from '@/components/analytics-provider';
 import { useTrackFeature } from '@/components/analytics-provider';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -114,11 +114,18 @@ const HEALTH_CONDITIONS = [
 ];
 
 export default function OnboardingPage() {
-  const { user, isAuthenticated, register } = useAuth();
+  const { isSignedIn, user } = useUser();
   const { trackEvent } = useAnalytics();
   const trackFeature = useTrackFeature('onboarding');
   const { toast } = useToast();
   const router = useRouter();
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isSignedIn) {
+      router.push('/sign-in');
+    }
+  }, [isSignedIn, router]);
 
   const [currentStep, setCurrentStep] = useState(0);
   const [onboardingData, setOnboardingData] = useState<OnboardingData>(DEFAULT_ONBOARDING);
@@ -286,7 +293,26 @@ export default function OnboardingPage() {
   const handleComplete = async () => {
     setIsLoading(true);
     try {
-      await register(onboardingData);
+      // Save user profile data to our backend
+      if (user) {
+        const response = await fetch('/api/user/profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            clerkId: user.id,
+            email: user.emailAddresses?.[0]?.emailAddress,
+            name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+            onboardingData,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to save profile');
+        }
+      }
+
       trackEvent('onboarding_completed', {
         timeSpent: Date.now() - startTime,
         stepsCompleted: steps.length,
@@ -299,11 +325,11 @@ export default function OnboardingPage() {
       });
       router.push('/dashboard');
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('Profile save error:', error);
       toast({
         variant: "destructive",
-        title: "Registration Failed",
-        description: "There was an error creating your profile. Please try again.",
+        title: "Profile Save Failed",
+        description: "There was an error saving your profile. Please try again.",
       });
     } finally {
       setIsLoading(false);

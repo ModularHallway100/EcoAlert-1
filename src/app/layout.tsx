@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from '@/components/theme-provider';
 import { Inter } from 'next/font/google';
-import { ClerkProvider } from "@clerk/nextjs";
+import { Providers } from '@/components/clerk-provider';
 import ConvexClientProvider from '@/components/convex-client-provider';
 import { SocketProvider } from '@/components/socket-provider';
 import { AnalyticsProvider } from '@/components/analytics-provider';
@@ -86,7 +86,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ClerkProvider>
+          <Providers>
             <ConvexClientProvider>
               <AuthProvider>
                 <SocketProvider>
@@ -97,7 +97,7 @@ export default function RootLayout({
                 </SocketProvider>
               </AuthProvider>
             </ConvexClientProvider>
-          </ClerkProvider>
+          </Providers>
         </ThemeProvider>
       </body>
     </html>

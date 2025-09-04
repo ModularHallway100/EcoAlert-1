@@ -14,15 +14,39 @@ const apiDirectories = [
 ];
 
 // Files that should be excluded from checks
-// Files that should be excluded from checks
 const excludedFiles = [
   'middleware.ts',
 ];
+
 // Auth protection patterns to look for
 const authProtectionPatterns = [
-  /auth\(\)\.protect\(\)/,
-  /clerkMiddleware/,
+  /auth\(\)\s*\.\s*protect\s*\(/,
 ];
+
+// Detect global Clerk middleware (simple heuristic)
+const hasGlobalClerkMiddleware = detectGlobalClerkMiddleware();
+
+function detectGlobalClerkMiddleware() {
+  const candidates = [
+    'middleware.ts',
+    path.join('src', 'middleware.ts'),
+    path.join('app', 'middleware.ts'),
+  ];
+  for (const p of candidates) {
+    const abs = path.join(process.cwd(), p);
+    if (!fs.existsSync(abs)) continue;
+    try {
+      const content = fs.readFileSync(abs, 'utf8');
+      // Covers `export default clerkMiddleware()` or default export of the symbol
+      if (/\bclerkMiddleware\s*\(/.test(content) || /export\s+default\s+clerkMiddleware\b/.test(content)) {
+        return true;
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+  return false;
+}
 
 console.log('🔍 Checking for missing auth().protect() calls...\n');
 
@@ -35,7 +59,10 @@ function checkFileForAuthProtection(filePath) {
   
   try {
     const content = fs.readFileSync(filePath, 'utf8');
-    const hasAuthProtection = authProtectionPatterns.some(pattern => pattern.test(content));
+    const inApiDir = apiDirectories.some(dir => relativePath.startsWith(dir + path.sep));
+    const hasAuthProtection = 
+      authProtectionPatterns.some(pattern => pattern.test(content)) ||
+      (hasGlobalClerkMiddleware && inApiDir);
     
     if (!hasAuthProtection && !isExcludedFile(relativePath)) {
       missingProtection.push(relativePath);

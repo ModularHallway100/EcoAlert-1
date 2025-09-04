@@ -13,9 +13,9 @@ export default function SignInPage() {
           </p>
         </div>
         <SignIn
-          routing="hash"
-          signUpForceRedirectUrl="/onboarding"
-          afterSignInUrl="/dashboard"
+          path="/sign-in"
+          forceRedirectUrl="/onboarding"
+          afterSignInUrl="/onboarding"
           appearance={{
             elements: {
               card: 'bg-white/90 backdrop-blur-sm',
