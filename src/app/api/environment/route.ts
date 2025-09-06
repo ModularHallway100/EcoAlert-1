@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { EnvironmentalData } from '@/lib/types';
 import { SIMULATION_CYCLE_TIME, POLLUTANTS } from '@/lib/constants';
+import { apiMiddleware, applySecurityHeaders, validateRequestData } from '@/middleware-api';
+import { InputValidator } from '@/lib/security';
 
 // --- REAL API INTEGRATION: WAQI (World Air Quality Index) ---
 // Fetches live AQI data from the WAQI API for the given coordinates.
@@ -99,10 +101,39 @@ const getSimulatedSensorData = (latitude?: number, longitude?: number): Partial<
 
 
 export async function GET(request: Request) {
+  // Apply API security middleware
+  const securityResponse = await apiMiddleware(request as any);
+  if (securityResponse) {
+    return securityResponse;
+  }
+  
   try {
     const { searchParams } = new URL(request.url);
     const lat = searchParams.get('lat');
     const lon = searchParams.get('lon');
+
+    // Validate latitude and longitude parameters
+    const validationRules = {
+      lat: {
+        type: 'string' as const,
+        validator: (value: string) => {
+          const num = parseFloat(value);
+          return isNaN(num) || num < -90 || num > 90 ? 'Latitude must be between -90 and 90' : true;
+        }
+      },
+      lon: {
+        type: 'string' as const,
+        validator: (value: string) => {
+          const num = parseFloat(value);
+          return isNaN(num) || num < -180 || num > 180 ? 'Longitude must be between -180 and 180' : true;
+        }
+      }
+    };
+
+    const validationResponse = validateRequestData(request as any, { lat, lon }, validationRules);
+    if (validationResponse) {
+      return validationResponse;
+    }
 
     const latitude = lat ? parseFloat(lat) : 40.7128; // Default to NYC if no lat
     const longitude = lon ? parseFloat(lon) : -74.0060; // Default to NYC if no lon
@@ -140,11 +171,14 @@ export async function GET(request: Request) {
       noise: simulatedData.noise!,
     };
     
-    return NextResponse.json(combinedData, {
+    const response = NextResponse.json(combinedData, {
       headers: {
         'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=300',
       }
     });
+    
+    // Apply security headers
+    return applySecurityHeaders(response);
 
   } catch (error) {
     console.error('API Error:', error);

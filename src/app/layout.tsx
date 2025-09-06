@@ -88,14 +88,14 @@ export default function RootLayout({
         >
           <Providers>
             <ConvexClientProvider>
-              <AuthProvider>
-                <SocketProvider>
-                  <AnalyticsProvider>
+              <SocketProvider>
+                <AnalyticsProvider>
+                  <AuthProvider>
                     {children}
                     <Toaster />
-                  </AnalyticsProvider>
-                </SocketProvider>
-              </AuthProvider>
+                  </AuthProvider>
+                </AnalyticsProvider>
+              </SocketProvider>
             </ConvexClientProvider>
           </Providers>
         </ThemeProvider>

@@ -1,7 +1,15 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import type { Socket } from 'socket.io-client';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
+import { io, Socket } from 'socket.io-client';
+
+// Helper function to get cookie value
+function getCookie(name: string): string | null {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+  return null;
+}
 
 interface SocketContextType {
   socket: Socket | null;
@@ -10,6 +18,8 @@ interface SocketContextType {
   alerts: any[];
   connect: () => void;
   disconnect: () => void;
+  error: string | null;
+  reconnect: () => void;
 }
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -18,82 +28,176 @@ interface SocketProviderProps {
   children: ReactNode;
 }
 
+// Configuration for socket connection
+const SOCKET_CONFIG = {
+  url: process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001',
+  path: '/api/environment/websocket',
+  options: {
+    autoConnect: false,
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+    timeout: 10000,
+    transports: ['websocket', 'polling'],
+    extraHeaders: {
+      // This will be added dynamically in initializeSocket
+    },
+  },
+};
+
 export function SocketProvider({ children }: SocketProviderProps) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [sensorData, setSensorData] = useState<any>(null);
   const [alerts, setAlerts] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // MOCK IMPLEMENTATION
-    const eventListeners = new Map<string, (...args: any[]) => void>();
-
-    const mockSocket = {
-      on: (event: string, callback: (...args: any[]) => void) => {
-        eventListeners.set(event, callback);
-      },
-      connect: () => {
-        console.log('Mock socket connected');
-        eventListeners.get('connect')?.();
-      },
-      disconnect: () => {
-        console.log('Mock socket disconnected');
-        eventListeners.get('disconnect')?.('client-side disconnect');
-      },
-      // Add other methods if needed
-      emit: (event: string, ...args: any[]) => {
-        console.log(`Mock socket emitting event "${event}" with args:`, args);
+  // Initialize socket connection
+  const initializeSocket = useCallback(async () => {
+    try {
+      // Clean up existing socket if any
+      if (socket) {
+        socket.disconnect();
       }
-    };
 
-    setSocket(mockSocket as any);
-    setIsConnected(true);
-    console.log('Mock socket provider initialized.');
+      // Get auth token for connection
+      const token = getCookie('auth-token');
+      if (!token) {
+        setError('Authentication required for socket connection');
+        return;
+      }
 
-    // Simulate connection
-    mockSocket.connect();
-
-    // Simulate receiving sensor data every 3 seconds
-    const sensorInterval = setInterval(() => {
-      const mockData = {
-        id: `sensor-${Math.floor(Math.random() * 100)}`,
-        type: 'air_quality',
-        value: Math.random() * 100,
-        timestamp: new Date().toISOString(),
+      // Update socket options with authentication
+      const socketOptions = {
+        ...SOCKET_CONFIG.options,
+        extraHeaders: {
+          ...SOCKET_CONFIG.options.extraHeaders,
+          Authorization: `Bearer ${token}`,
+        },
       };
-      eventListeners.get('sensor-data')?.(mockData);
-    }, 3000);
 
-    // Simulate receiving an alert every 10 seconds
-    const alertInterval = setInterval(() => {
-      const mockAlert = {
-        id: `alert-${Date.now()}`,
-        message: 'High pollution levels detected in your area.',
-        level: 'warning',
-        timestamp: new Date().toISOString(),
-      };
-      eventListeners.get('alert')?.(mockAlert);
-    }, 10000);
+      const newSocket = io(SOCKET_CONFIG.url, socketOptions);
+      
+      // Set up event listeners
+      newSocket.on('connect', () => {
+        console.log('Socket connected successfully');
+        setIsConnected(true);
+        setError(null);
+        
+        // Request initial data
+        newSocket.emit('request_sensor_data');
+        newSocket.emit('request_alerts');
+      });
 
-    // Cleanup on unmount
-    return () => {
-      clearInterval(sensorInterval);
-      clearInterval(alertInterval);
-      mockSocket.disconnect();
-    };
-  }, []);
+      newSocket.on('disconnect', (reason) => {
+        console.log('Socket disconnected:', reason);
+        setIsConnected(false);
+      });
 
-  const connect = () => {
+      newSocket.on('connect_error', (err) => {
+        console.error('Socket connection error:', err);
+        setError(`Connection failed: ${err.message}`);
+        setIsConnected(false);
+      });
+
+      // Handle sensor data updates
+      newSocket.on('sensor-data', (data) => {
+        console.log('Received sensor data:', data);
+        setSensorData(data);
+      });
+
+      // Handle alerts
+      newSocket.on('alert', (alert) => {
+        console.log('Received alert:', alert);
+        setAlerts(prev => [alert, ...prev].slice(0, 10)); // Keep last 10 alerts
+      });
+
+      // Handle errors
+      newSocket.on('error', (err) => {
+        console.error('Socket error:', err);
+        setError(err.message || 'Unknown socket error');
+      });
+
+      setSocket(newSocket);
+    } catch (err) {
+      console.error('Failed to initialize socket:', err);
+      setError('Failed to initialize connection');
+    }
+  }, [socket]);
+
+  // Connect to socket
+  const connect = useCallback(() => {
     if (socket && !isConnected) {
       socket.connect();
+    } else if (!socket) {
+      initializeSocket();
     }
-  };
+  }, [socket, isConnected, initializeSocket]);
 
-  const disconnect = () => {
+  // Disconnect from socket
+  const disconnect = useCallback(() => {
     if (socket && isConnected) {
       socket.disconnect();
     }
-  };
+  }, [socket, isConnected]);
+
+  // Reconnect to socket
+  const reconnect = useCallback(() => {
+    setError(null);
+    disconnect();
+    setTimeout(initializeSocket, 1000);
+  }, [disconnect, initializeSocket]);
+
+  // Initialize socket on mount
+  useEffect(() => {
+    initializeSocket();
+    
+    // Cleanup on unmount
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+  }, [initializeSocket]);
+
+  // Request sensor data
+  const requestSensorData = useCallback(() => {
+    if (socket && isConnected) {
+      socket.emit('request_sensor_data');
+    }
+  }, [socket, isConnected]);
+
+  // Request alerts
+  const requestAlerts = useCallback(() => {
+    if (socket && isConnected) {
+      socket.emit('request_alerts');
+    }
+  }, [socket, isConnected]);
+
+  // Request community data
+  const requestCommunityData = useCallback(() => {
+    if (socket && isConnected) {
+      socket.emit('request_community_data');
+    }
+  }, [socket, isConnected]);
+
+  // Request predictive data
+  const requestPredictiveData = useCallback(() => {
+    if (socket && isConnected) {
+      socket.emit('request_predictive_data');
+    }
+  }, [socket, isConnected]);
+
+  // Add request methods to socket
+  useEffect(() => {
+    if (socket) {
+      (socket as any).request_sensor_data = requestSensorData;
+      (socket as any).request_alerts = requestAlerts;
+      (socket as any).request_community_data = requestCommunityData;
+      (socket as any).request_predictive_data = requestPredictiveData;
+    }
+  }, [socket, requestSensorData, requestAlerts, requestCommunityData, requestPredictiveData]);
 
   const value = {
     socket,
@@ -102,6 +206,8 @@ export function SocketProvider({ children }: SocketProviderProps) {
     alerts,
     connect,
     disconnect,
+    error,
+    reconnect,
   };
 
   return <SocketContext.Provider value={value}>{children}</SocketContext.Provider>;

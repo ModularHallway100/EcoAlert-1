@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useUser } from '@clerk/nextjs';
 import { useSocket } from '@/components/socket-provider';
-import { useAuth } from '@/components/auth-provider';
 import { useAnalytics } from '@/components/analytics-provider';
 import { useTrackFeature } from '@/components/analytics-provider';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -92,7 +92,7 @@ interface PredictiveData {
 }
 
 export function Dashboard() {
-  const { user } = useAuth();
+  const { user } = useUser();
   const { socket, isConnected, sensorData, alerts } = useSocket();
   const { trackEvent } = useAnalytics();
   const trackFeature = useTrackFeature('dashboard');

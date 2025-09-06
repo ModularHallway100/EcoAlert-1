@@ -60,9 +60,9 @@ export async function POST(request: NextRequest) {
     let clerkUser;
     try {
       const clerkClientInstance = await clerkClient();
-      try {
-        clerkUser = await clerkClient.users.getUser(userData.clerkId);
-      } catch (clerkError) {      return NextResponse.json(
+      clerkUser = await clerkClientInstance.users.getUser(userData.clerkId);
+    } catch (clerkError) {
+      return NextResponse.json(
         { error: "Failed to fetch user data from Clerk" },
         { status: 404 }
       );

@@ -68,9 +68,11 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const eventId = searchParams.get('eventId');
     const eventType = searchParams.get('eventType');
-    const limit = parseInt(searchParams.get('limit') || '100');
-    const offset = parseInt(searchParams.get('offset') || '0');
+    const limitParam = searchParams.get('limit') || '100';
+    const offsetParam = searchParams.get('offset') || '0';
 
+    const limit = Math.min(Math.max(parseInt(limitParam) || 100, 1), 1000);
+    const offset = Math.max(parseInt(offsetParam) || 0, 0);
     // In a real implementation, you would query your database here
     // For now, return mock data
     

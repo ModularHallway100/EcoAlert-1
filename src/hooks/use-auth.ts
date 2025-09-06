@@ -45,8 +45,9 @@ export function useAuthWithConvex(): AuthUser {
               const token = await getToken({ skipCache: true }).catch(() => null);
               if (!token) throw new Error('Auth token unavailable');
 
-              // Sync user data with our backend (server will fetch Clerk data)
+              // Create abort controller for this request
               abortController = new AbortController();
+              
               const syncResponse = await fetch('/api/auth/sync', {
                 method: 'POST',
                 headers: {
@@ -57,7 +58,9 @@ export function useAuthWithConvex(): AuthUser {
                   clerkId: userId,
                 }),
                 signal: abortController.signal,
-              });              if (!syncResponse.ok) {
+              });
+              
+              if (!syncResponse.ok) {
                 throw new Error(`Failed to sync user data: ${syncResponse.status}`);
               }
               
@@ -65,7 +68,7 @@ export function useAuthWithConvex(): AuthUser {
               if (process.env.NODE_ENV !== 'production') {
                 console.debug('User data synced successfully');
               }
-              break; // Success, exit retry loop              
+              break; // Success, exit retry loop
             } catch (error) {
               retryCount++;
               if (retryCount >= maxRetries) {
@@ -92,7 +95,8 @@ export function useAuthWithConvex(): AuthUser {
       return () => {
         isCancelled = true;
         abortController?.abort();
-      };    }
+      };
+    }
   }, [isLoaded, isSignedIn, userId, getToken]);
 
   if (!isLoaded) {

@@ -4,113 +4,207 @@
     "Next.js",
     "React",
     "Tailwind CSS",
+    "Radix UI",
     "Clerk",
     "Convex",
-    "Firebase",
-    "Genkit AI",
-    "Leaflet",
     "Socket.io",
-    "Radix UI"
+    "React Leaflet",
+    "Recharts",
+    "Google AI",
+    "Genkit"
   ],
   "features": [
     {
       "name": "Authentication System",
-      "description": "User authentication using Clerk with Google, email, and phone methods",
+      "description": "User authentication and management using Clerk",
       "files": [
-        "src/app/layout.tsx",
         "src/app/sign-in/[[...sign-in]]/page.tsx",
         "src/app/sign-up/[[...sign-up]]/page.tsx",
-        "src/app/onboarding/page.tsx",
-        "src/components/auth-provider.tsx"
+        "src/components/clerk-provider.tsx",
+        "src/components/auth-provider.tsx",
+        "src/components/auth-flow.tsx",
+        "src/components/auth-header.tsx",
+        "src/hooks/use-auth.ts"
       ]
     },
     {
       "name": "Dashboard",
-      "description": "Main dashboard with environmental data visualization and analytics",
+      "description": "Main environmental monitoring dashboard with real-time data",
       "files": [
         "src/app/dashboard/page.tsx",
-        "src/components/dashboard/air-quality-chart.tsx",
-        "src/components/dashboard/pollution-heatmap.tsx",
-        "src/components/dashboard/alerts-panel.tsx"
+        "src/components/dashboard.tsx",
+        "src/components/adaptive-dashboard.tsx"
       ]
     },
     {
-      "name": "Real-time Monitoring",
-      "description": "Real-time environmental data monitoring with WebSocket integration",
+      "name": "Optimized Dashboard",
+      "description": "Performance-optimized dashboard with lazy loading",
       "files": [
-        "src/app/monitoring/page.tsx",
-        "src/components/monitoring/live-sensors.tsx",
-        "src/components/monitoring/sensor-map.tsx",
-        "src/lib/socket.ts"
+        "src/app/optimized-dashboard/page.tsx"
       ]
     },
     {
-      "name": "User Profile Management",
-      "description": "User profile creation, editing, and management",
+      "name": "Emergency Command Center",
+      "description": "Centralized emergency management interface",
       "files": [
-        "src/app/profile/page.tsx",
-        "src/components/profile/profile-form.tsx",
-        "src/components/profile/preferences.tsx"
+        "src/components/emergency-command-center.tsx"
       ]
     },
     {
-      "name": "AI Analytics",
-      "description": "AI-powered environmental analytics and predictions using Genkit",
+      "name": "Real-time Data Processing",
+      "description": "Socket.io integration for real-time sensor data",
       "files": [
-        "src/app/analytics/page.tsx",
-        "src/components/analytics/predictions.tsx",
-        "src/components/analytics/recommendations.tsx",
-        "src/ai/dev.ts"
+        "src/components/socket-provider.tsx",
+        "src/hooks/use-aqi.ts",
+        "src/hooks/use-pollution-heatmap.ts"
+      ]
+    },
+    {
+      "name": "Analytics System",
+      "description": "User behavior tracking and analytics",
+      "files": [
+        "src/components/analytics-provider.tsx",
+        "src/hooks/use-toast.ts",
+        "src/app/api/analytics/route.ts",
+        "src/app/api/analytics/events/route.ts",
+        "src/app/api/analytics/reports/route.ts"
+      ]
+    },
+    {
+      "name": "Environmental Data Management",
+      "description": "API endpoints for environmental sensor data",
+      "files": [
+        "src/app/api/environment/route.ts",
+        "src/app/api/environment/sensors/route.ts",
+        "src/app/api/pollution/route.ts"
+      ]
+    },
+    {
+      "name": "Educational Content",
+      "description": "Educational resources and environmental learning materials",
+      "files": [
+        "src/app/api/educational/content/route.ts",
+        "src/app/api/educational/content/[id]/route.ts",
+        "src/app/api/educational/content/[id]/interact/route.ts",
+        "src/components/learn.tsx"
       ]
     },
     {
       "name": "Community Features",
-      "description": "Community engagement, sharing, and gamification",
+      "description": "Social interaction and community engagement",
       "files": [
         "src/app/community/page.tsx",
-        "src/components/community/posts.tsx",
-        "src/components/community/challenges.tsx",
-        "src/components/community/leaderboard.tsx"
+        "src/app/social/page.tsx",
+        "src/components/community-challenges.tsx",
+        "src/components/community-feed.tsx",
+        "src/components/community-leaderboard.tsx",
+        "src/components/community-profile.tsx",
+        "src/app/api/social/posts/route.ts"
       ]
     },
     {
-      "name": "Emergency Response",
-      "description": "Emergency alert system and response coordination",
+      "name": "User Profile Management",
+      "description": "User profile and settings management",
       "files": [
-        "src/app/emergency/page.tsx",
-        "src/components/emergency/alerts.tsx",
-        "src/components/emergency/response-team.tsx",
-        "src/components/emergency/protocols.tsx"
+        "src/app/api/user/profile/route.ts",
+        "src/hooks/use-user-profile.ts",
+        "src/components/settings.tsx"
       ]
     },
     {
-      "name": "API Routes",
-      "description": "Backend API endpoints for data management and processing",
+      "name": "Pollution Mapping",
+      "description": "Geographic visualization of pollution data",
       "files": [
-        "src/app/api/analytics/events/route.ts",
-        "src/app/api/auth/register/route.ts",
-        "src/app/api/profile/route.ts",
-        "src/app/api/sensors/route.ts"
+        "src/app/pollution-map/page.tsx",
+        "src/components/pollution-heatmap.tsx",
+        "src/components/pollution-monitor.tsx"
+      ]
+    },
+    {
+      "name": "Integration System",
+      "description": "Third-party service integrations and webhooks",
+      "files": [
+        "src/app/api/integrations/route.ts",
+        "src/app/api/integrations/[id]/route.ts",
+        "src/app/api/integrations/docs/route.ts",
+        "src/app/api/integrations/webhooks/route.ts",
+        "src/lib/integrations.ts"
+      ]
+    },
+    {
+      "name": "AI and Analytics",
+      "description": "AI-powered predictive analytics and anomaly detection",
+      "files": [
+        "src/ai/anomaly-detection.ts",
+        "src/ai/predictive-analytics.ts",
+        "src/ai/flows/environmental-assistant.ts",
+        "src/ai/flows/pollution-reduction-tips.ts",
+        "src/ai/genkit.ts",
+        "src/ai/dev.ts"
       ]
     },
     {
       "name": "UI Components",
-      "description": "Reusable UI components using Radix UI and Tailwind CSS",
+      "description": "Reusable UI components built with Radix UI",
       "files": [
+        "src/components/ui/accordion.tsx",
+        "src/components/ui/alert-dialog.tsx",
+        "src/components/ui/alert.tsx",
+        "src/components/ui/avatar.tsx",
+        "src/components/ui/badge.tsx",
         "src/components/ui/button.tsx",
+        "src/components/ui/calendar.tsx",
         "src/components/ui/card.tsx",
+        "src/components/ui/carousel.tsx",
+        "src/components/ui/chart.tsx",
+        "src/components/ui/checkbox.tsx",
+        "src/components/ui/collapsible.tsx",
         "src/components/ui/dialog.tsx",
+        "src/components/ui/dropdown-menu.tsx",
         "src/components/ui/form.tsx",
-        "src/components/ui/input.tsx"
+        "src/components/ui/input.tsx",
+        "src/components/ui/label.tsx",
+        "src/components/ui/menubar.tsx",
+        "src/components/ui/popover.tsx",
+        "src/components/ui/progress.tsx",
+        "src/components/ui/radio-group.tsx",
+        "src/components/ui/scroll-area.tsx",
+        "src/components/ui/select.tsx",
+        "src/components/ui/separator.tsx",
+        "src/components/ui/sheet.tsx",
+        "src/components/ui/sidebar.tsx",
+        "src/components/ui/skeleton.tsx",
+        "src/components/ui/slider.tsx",
+        "src/components/ui/switch.tsx",
+        "src/components/ui/table.tsx",
+        "src/components/ui/tabs.tsx",
+        "src/components/ui/textarea.tsx",
+        "src/components/ui/toast.tsx",
+        "src/components/ui/toaster.tsx",
+        "src/components/ui/tooltip.tsx"
       ]
     },
     {
-      "name": "Map Integration",
-      "description": "Interactive maps for pollution visualization and sensor locations",
+      "name": "Theme System",
+      "description": "Theme management and customization",
       "files": [
-        "src/components/map/pollution-heatmap.tsx",
-        "src/components/map/sensor-map.tsx",
-        "src/components/map/location-tracker.tsx"
+        "src/components/theme-provider.tsx",
+        "src/components/theme-toggle.tsx",
+        "src/components/platform-theme.tsx"
+      ]
+    },
+    {
+      "name": "Database Schema",
+      "description": "Convex database schema definitions",
+      "files": [
+        "convex/schema.ts"
+      ]
+    },
+    {
+      "name": "Local Storage",
+      "description": "Client-side data persistence",
+      "files": [
+        "src/lib/db.ts"
       ]
     }
   ]

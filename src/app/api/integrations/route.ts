@@ -103,7 +103,8 @@ class ServiceManager {
         console.error(`Failed to disconnect service for ${config.id}:`, error);
         // Continue with cleanup even if disconnect fails
       } finally {
-        const configId = key.split('-').slice(1).join('-');        this.services.delete(key);
+        const configId = key.split('-').slice(1).join('-');
+        this.services.delete(key);
         this.connections.delete(config.id);
       }
     }
@@ -382,6 +383,24 @@ export async function DELETE(request: NextRequest) {
 
     // Remove from storage
     integrationsStorage.delete(id);
+    
+    return NextResponse.json({
+      success: true,
+      message: 'Integration deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Error deleting integration:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'Internal server error',
+      message: process.env.NODE_ENV === 'development'
+        ? (error instanceof Error ? error.message : 'Unknown error')
+        : 'An unexpected error occurred'
+    }, { status: 500 });
+  }
+}
+
 // Handle server shutdown cleanup
 if (typeof process !== 'undefined' && process.on) {
   const handleShutdown = async (signal: string) => {
@@ -402,9 +421,6 @@ if (typeof process !== 'undefined' && process.on) {
   process.on('SIGINT', async () => {
     await handleShutdown('SIGINT');
   });
-}        : 'An unexpected error occurred'
-    }, { status: 500 });
-  }
 }
 
 // Handle server shutdown cleanup

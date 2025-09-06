@@ -35,8 +35,11 @@ This guide walks you through integrating Clerk authentication with Convex backen
    - In your `/api/auth/webhook` handler:
      - Enforce `POST` only.
      - Verify `svix-id`, `svix-timestamp`, and `svix-signature` using the Clerk SDK (or `svix`) before any processing.
-     - On verification failure, return `401 Unauthorized` and perform no side effects.
-
+       - Use the exact raw request body (e.g., `await req.text()` in App Router; disable body parsing in Pages Router) for signature verification.
+       - Enforce a reasonable timestamp tolerance (replay protection is built-in; keep default or set a strict value).
+       - Treat duplicate deliveries as possible (SVIX retries). Make the handler idempotent.
+       - Do not log secrets or full `svix-signature` values.
+     - On verification failure, return `401 Unauthorized` and perform no side effects. Return 2xx only after successful verification and handling.
 ## Step 3: Create a JWT Template for Convex
 1. In your Clerk Dashboard, go to **JWT Templates**
 2. Click **New template** and choose **Convex** from the list

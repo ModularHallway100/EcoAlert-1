@@ -399,10 +399,7 @@ export class WeatherService implements IntegrationService {
     }
 
     return {
-      location: {
-        latitude: data.coord.lat,
-        longitude: data.coord.lon
-      },
+      location: `${data.coord.lat},${data.coord.lon}`,
       city: data.name || 'Unknown',
       country: data.sys?.country || 'Unknown',
       temperature: Math.round(data.main.temp),

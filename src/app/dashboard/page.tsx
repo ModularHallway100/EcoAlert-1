@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Dashboard as DashboardComponent } from '@/components/dashboard';
 import { AdaptiveDashboard } from '@/components/adaptive-dashboard';
 import EmergencyCommandCenter from '@/components/emergency-command-center';
-import { useAuth } from '@/components/auth-provider';
+import { useUser } from '@clerk/nextjs';
 import { useSocket } from '@/components/socket-provider';
 import { useAnalytics } from '@/components/analytics-provider';
 import { useTrackFeature } from '@/components/analytics-provider';
@@ -32,7 +32,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 export default function DashboardPage() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isSignedIn } = useUser();
   const { socket, isConnected, sensorData, alerts } = useSocket();
   const { trackEvent } = useAnalytics();
   const trackFeature = useTrackFeature('dashboard');
@@ -46,9 +46,9 @@ export default function DashboardPage() {
   useEffect(() => {
     trackEvent('dashboard_view', {
       userId: user?.id,
-      isAuthenticated: isAuthenticated,
+      isAuthenticated: isSignedIn,
     });
-  }, [user, isAuthenticated, trackEvent]);
+  }, [user, isSignedIn, trackEvent]);
 
   // Track real-time updates
   useEffect(() => {
@@ -101,7 +101,7 @@ export default function DashboardPage() {
     });
   };
 
-  if (!isAuthenticated) {
+  if (!isSignedIn) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Card className="w-full max-w-md">
@@ -112,8 +112,8 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => window.location.href = '/login'} className="w-full">
-              Login
+            <Button onClick={() => window.location.href = '/sign-in'} className="w-full">
+              Sign In
             </Button>
           </CardContent>
         </Card>
@@ -158,7 +158,7 @@ export default function DashboardPage() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Welcome back, {user?.basicInfo?.name || 'EcoWarrior'}!
+            Welcome back, {user?.firstName || user?.username || 'EcoWarrior'}!
           </h2>
           <p className="text-gray-600 dark:text-gray-300">
             Monitor your environment, stay informed, and take action for a healthier planet.

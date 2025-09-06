@@ -59,7 +59,13 @@ function checkFileForAuthProtection(filePath) {
   
   try {
     const content = fs.readFileSync(filePath, 'utf8');
-    const inApiDir = apiDirectories.some(dir => relativePath.startsWith(dir + path.sep));
+    // Normalize to forward slashes for cross-platform path comparison
+    const normalizedRelativePath = relativePath.replace(/\\/g, '/');
+    const inApiDir = apiDirectories.some(dir => {
+      const normalizedDir = dir.replace(/\\/g, '/');
+      return normalizedRelativePath.startsWith(normalizedDir + '/');
+    });
+
     const hasAuthProtection = 
       authProtectionPatterns.some(pattern => pattern.test(content)) ||
       (hasGlobalClerkMiddleware && inApiDir);

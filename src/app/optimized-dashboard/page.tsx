@@ -29,7 +29,7 @@ const AdaptiveDashboard = lazy(() =>
   import('@/components/adaptive-dashboard').then(module => ({ default: module.AdaptiveDashboard }))
 );
 const DashboardComponent = lazy(() =>
-  import('@/components/dashboard').then(module => ({ default: module.Dashboard }))
+  import('@/components/optimized-dashboard').then(module => ({ default: module.OptimizedDashboard }))
 );
 const EmergencyCommandCenter = lazy(() =>
   import('@/components/emergency-command-center')

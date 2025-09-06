@@ -233,10 +233,8 @@ function runTests() {
     
     try {
       // Test with an invalid API key
-      const invalidConfig = {
-        ...mockConfig,
-        apiKeys: { ...mockConfig.apiKeys, SENDGRID_API_KEY: 'invalid-key' },
-      };
+      const invalidConfig = { ...mockConfig, apiKeys: { ...mockConfig.apiKeys } };
+      delete invalidConfig.apiKeys.SENDGRID_API_KEY;
       
       // Mock an authentication error response
       global.fetch = createMockFetch([{

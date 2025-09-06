@@ -314,7 +314,6 @@ export default function OnboardingPage() {
       }
 
       trackEvent('onboarding_completed', {
-        timeSpent: Date.now() - startTime,
         stepsCompleted: steps.length,
         healthProfile: onboardingData.healthProfile.vulnerable,
         primaryConcern: onboardingData.environmentalConcerns.primary

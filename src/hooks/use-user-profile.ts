@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useUser } from '@clerk/nextjs';
 import { UserProfile, UserProfileUpdate, DEFAULT_USER_PROFILE } from '@/lib/user-profile';
 import { db } from '@/lib/db';
 
@@ -16,6 +17,10 @@ export function useUserProfile(userId: string = 'anonymous'): UseUserProfileRetu
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user, isSignedIn } = useUser();
+
+  // Use Clerk user ID if available
+  const effectiveUserId = isSignedIn ? user!.id : userId;
 
   // Load user profile
   const loadProfile = useCallback(async () => {
@@ -23,7 +28,7 @@ export function useUserProfile(userId: string = 'anonymous'): UseUserProfileRetu
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/user/profile?userId=${userId}`);
+      const response = await fetch(`/api/user/profile?userId=${effectiveUserId}`);
       const data = await response.json();
       
       if (data.success) {
@@ -32,10 +37,11 @@ export function useUserProfile(userId: string = 'anonymous'): UseUserProfileRetu
         setError(data.error || 'Failed to load profile');
         // Create default profile if error
         const defaultProfile: UserProfile = {
-          id: userId,
+          id: effectiveUserId,
           ...DEFAULT_USER_PROFILE,
           basicInfo: {
             ...DEFAULT_USER_PROFILE.basicInfo,
+            name: isSignedIn ? `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.username || '' : '',
             location: { latitude: 40.7128, longitude: -74.0060 } // Default to NYC
           }
         };
@@ -47,10 +53,11 @@ export function useUserProfile(userId: string = 'anonymous'): UseUserProfileRetu
       
       // Fallback to default profile
       const defaultProfile: UserProfile = {
-        id: userId,
+        id: effectiveUserId,
         ...DEFAULT_USER_PROFILE,
         basicInfo: {
           ...DEFAULT_USER_PROFILE.basicInfo,
+          name: isSignedIn ? `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.username || '' : '',
           location: { latitude: 40.7128, longitude: -74.0060 }
         }
       };
@@ -58,7 +65,7 @@ export function useUserProfile(userId: string = 'anonymous'): UseUserProfileRetu
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [effectiveUserId, isSignedIn, user]);
 
   // Refresh profile
   const refreshProfile = useCallback(async () => {

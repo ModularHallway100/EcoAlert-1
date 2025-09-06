@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,23 +17,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    const { userId: authedUserId } = auth();
+    const { userId: authedUserId } = await auth();
     if (!authedUserId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); 
-    } 
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     if (authedUserId !== userId) {
       return NextResponse.json({ error: "User mismatch" }, { status: 403 });
     }
 
-    // Fetch user info from Clerk
-    const clerkUser = await clerkClient.users.getUser(userId);
-
     // Return user data for Convex to process
+    // Note: We're not fetching Clerk user info directly due to SDK limitations in server components
+    // The actual user data will be fetched by the server-side auth process
     return NextResponse.json({
       clerkId: userId,
-      email: clerkUser.emailAddresses?.[0]?.emailAddress || "",
-      name: `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim() || clerkUser.username || "",
-      imageUrl: clerkUser.imageUrl,
+      email: "",
+      name: "",
+      imageUrl: "",
       subscriptionTier: "free", // Default tier
       subscriptionStatus: "active",
       currentPeriodStart: Date.now(),

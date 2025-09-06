@@ -7,9 +7,11 @@ interface AuthContextType {
   user: any;
   loading: boolean;
   isAuthenticated: boolean;
-  login: (credentials: any) => Promise<void>;
+  login: (credentials: { email: string; password: string }) => Promise<void>;
   logout: () => void;
-  register: (userData: any) => Promise<void>;
+  register: (userData: { email: string; password: string; name: string }) => Promise<void>;
+  error: string | null;
+  clearError: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,18 +20,75 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// Helper function to get cookie value
+function getCookie(name: string): string | null {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+  return null;
+}
+
+// Helper function to set cookie
+function setCookie(name: string, value: string, days: number = 1) {
+  const date = new Date();
+  date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+  const expires = `expires=${date.toUTCString()}`;
+  document.cookie = `${name}=${value};${expires};path=/;secure;samesite=strict`;
+}
+
+// Helper function to delete cookie
+function deleteCookie(name: string) {
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;secure;samesite=strict`;
+}
+
 export function AuthProvider({ children }: AuthProviderProps) {
   const { profile, loading } = useUserProfile();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  // Validate session on mount
   useEffect(() => {
-    // MOCK: For development, always assume user is authenticated
-    setIsAuthenticated(true);
+    const validateSession = async () => {
+      try {
+        const token = getCookie('auth-token');
+        if (!token) {
+          setIsAuthenticated(false);
+          return;
+        }
+
+        // Validate token with server
+        const response = await fetch('/api/auth/validate', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Invalid session');
+        }
+
+        const userData = await response.json();
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Session validation error:', error);
+        setIsAuthenticated(false);
+        deleteCookie('auth-token');
+      }
+    };
+
+    validateSession();
   }, []);
 
-  const login = async (credentials: any) => {
+  const login = async (credentials: { email: string; password: string }) => {
     try {
-      // This would normally call your authentication API
+      setError(null);
+      
+      // Validate input
+      if (!credentials.email || !credentials.password) {
+        throw new Error('Email and password are required');
+      }
+
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -39,24 +98,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Login failed');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Login failed');
       }
 
       const { token, user } = await response.json();
       
-      // Store token in cookie
-      document.cookie = `auth-token=${token}; path=/; max-age=86400; secure; samesite=strict`;
+      // Store token in secure cookie
+      setCookie('auth-token', token, 1);
       
-      // Update user profile
+      // Update authentication state
       setIsAuthenticated(true);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      setError(errorMessage);
       console.error('Login error:', error);
       throw error;
     }
   };
 
-  const register = async (userData: any) => {
+  const register = async (userData: { email: string; password: string; name: string }) => {
     try {
+      setError(null);
+      
+      // Validate input
+      if (!userData.email || !userData.password || !userData.name) {
+        throw new Error('All fields are required');
+      }
+
+      if (userData.password.length < 8) {
+        throw new Error('Password must be at least 8 characters long');
+      }
+
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
@@ -66,17 +139,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Registration failed');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Registration failed');
       }
 
       const { token, user } = await response.json();
       
-      // Store token in cookie
-      document.cookie = `auth-token=${token}; path=/; max-age=86400; secure; samesite=strict`;
+      // Store token in secure cookie
+      setCookie('auth-token', token, 1);
       
-      // Update user profile
+      // Update authentication state
       setIsAuthenticated(true);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Registration failed';
+      setError(errorMessage);
       console.error('Registration error:', error);
       throw error;
     }
@@ -84,8 +160,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = () => {
     // Clear token
-    document.cookie = 'auth-token=; path=/; max-age=0';
+    deleteCookie('auth-token');
     setIsAuthenticated(false);
+    setError(null);
+  };
+
+  const clearError = () => {
+    setError(null);
   };
 
   const value = {
@@ -95,6 +176,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     login,
     logout,
     register,
+    error,
+    clearError,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
